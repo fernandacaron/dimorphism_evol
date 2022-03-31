@@ -23,7 +23,6 @@ SDI <- function (male = male, female = female) {
 	}
 
 	return(SDI)
-
 }
 
 dat_red <- dat[, c(5, 9, 13)]
