@@ -11,7 +11,7 @@ dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
 
 ## Ref Blanckenhorn et al. 2007 (Livro Fairbairn et al. 2007, Chapter 6, p. 65)
 ## SDI = (female size/male size - 1) when female larger
-## SDI = -(male size/female size - 1) when male size
+## SDI = -(male size/female size - 1) when male larger
 
 SDI <- function (male = male, female = female) {
 	if (male <= female) {
