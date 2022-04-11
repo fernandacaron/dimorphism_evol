@@ -200,53 +200,51 @@ mtext(paste0("SDI = ", round(q[5], 2), " - ", round(max(sdi), 2)), side = 3,
 
 dev.off()
 
-####################################
+## Figure XX
 
+sdi <- numeric()
+for (i in 1:nrow(dat_red)) {
+    sdi[i] <- SDI(male = dat_red$Body_mass_g_M_mean[i],
+                  female = dat_red$Body_mass_g_F_mean[i],
+                  cutoff = FALSE)
+}
+names(sdi) <- dat_red$Scientific_name
 
+sdi <- sdi[names(sdi) %in% pam$Species_name]
+sdi <- sdi[pam$Species_name]
+sdi <- sdi[sdi <= quantile(sdi, probs = 0.975) & 
+           sdi >= quantile(sdi, probs = 0.025)]
 
-
-
-
-
-
-title("Absolute SSD")
-
-map("world", fill = TRUE, col = "gray", bg = "white", border = NA)
-plot(npp, add = TRUE, col = pal(200))
-
-
-
-
-res <- lets.maplizer(pam, abs_sdi, pam[[3]], ras = TRUE)
+sdi[sdi == 0] <- 1e-38
 
 data(wrld_simpl)
 
-# Tirar mapa da água, deixar só terra
-res_crop <- lets.pamcrop(res, wrld_simpl, remove.sp = TRUE)
 pam_crop <- lets.pamcrop(pam, wrld_simpl, remove.sp = TRUE)
 
-# https://sedac.ciesin.columbia.edu/data/set/hanpp-net-primary-productivity/data-download
-npp <- raster("data/npp-geotiff/npp_geotiff.tif")
+pam2 <- pam_crop[[1]][, -(1:2)]
+for (i in 1:ncol(pam2)) {
+    spp <- pam_crop[[3]][i] == pam_crop[[3]]
+    pam2[, i] <- pam2[, i] * sdi[spp]
+    del <- pam2[, i] == 0
+    pam2[del, i] <- NA
+}
 
-pdf("figures/map.pdf")
+summ <- apply(pam2, 1, median, na.rm = T)
+summ[summ == 1e-38] <- 0
 
-layout(matrix(1:3, ncol = 1))
+res <- cbind(pam_crop[[1]][, 1:2], summ)
+res2 <- na.omit(res)
+colnames(res)[3] <- paste("Variable", 
+                          as.character(substitute(median)), sep = "_")
+r <- rasterize(res2[, 1:2], pam_crop[[2]], res2[, 3])
+
+pdf("figures/FigureXX.pdf")
 
 par(mar = c(4, 0, 1, 0))
-
 pal <- colorRampPalette(viridis(20))
-
-map("world", fill = TRUE, col = "white", bg = "white", border = NA)
-plot(pam_crop$Richness_Raster, add = TRUE, col = pal(20))
-title("Richness")
-
-map("world", fill = TRUE, col = "white", bg = "white", border = NA)
-plot(res_crop$Raster, add = TRUE, col = pal(200))
-title("Absolute SSD")
-
-map("world", fill = TRUE, col = "white", bg = "white", border = NA)
-plot(npp, add = TRUE, col = pal(200))
-title("NPP")
+map("world", fill = TRUE, col = "gray", bg = "white", border = NA)
+plot(r, add = TRUE, col = pal(200))
+title("SSD")
 
 dev.off()
 
