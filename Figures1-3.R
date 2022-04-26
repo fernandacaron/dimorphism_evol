@@ -12,6 +12,13 @@ library(maptools)
 
 dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
 
+# definir cores
+male <- viridis(20)[1]
+#male <- "#9966FF"
+monom <- "gray"
+female <- mako(7)[4]
+#female <- "#E69F00"
+
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
                  complete.cases(dat$Body_mass_g_F_mean), ]
 
@@ -25,45 +32,55 @@ names(Body_mass_g_mean) <- dat_red$Scientific_name
 dat_red <- cbind(dat_red, Body_mass_g_mean)
 
 ## Figure 1
-pdf("figures/Figure1.pdf", height = 9)
+pdf("figures/Figure1.pdf", height = 9, width = 8)
 layout(matrix(1:2, ncol = 1))
 
-cols <- mako(7)
-cols_al <- rgb(t(col2rgb(cols)), alpha = 150, maxColorValue = 255)
+colorRampAlpha  <-  function(..., n, alpha) {
+  colors  <-  colorRampPalette(...)(n)
+  paste(colors, sprintf("%x", ceiling(255*alpha)), sep = "")
+}
+
+cols_ma <- colorRampAlpha(c(lighten(male, 0.8), male, "black"), n = 6, alpha = 1)
+cols_ma_al <- colorRampAlpha(c(lighten(male, 0.8), male, "black"), n = 6, alpha = 0.6)
 
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Apodiformes"]), 
      ylim = c(0, 1), xlim = c(0, 10), main = "", 
-     xlab = "log body mass (g) males", breaks = 30, 
-     col = cols_al[1], freq = F, border = cols[1])
+     xlab = "log male body mass (g)", breaks = 30, 
+     col = cols_ma_al[1], freq = F, border = cols_ma[1])
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Charadriiformes"]), 
-     add = T, breaks = 40, col = cols_al[2], freq = F, border = cols[2])
+     add = T, breaks = 40, col = cols_ma_al[2], freq = F, border = cols_ma[2])
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Columbiformes"]), add = T, 
-     breaks = 40, col = cols_al[3], freq = F, border = cols[3])
+     breaks = 40, col = cols_ma_al[3], freq = F, border = cols_ma[3])
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Passeriformes"]), add = T, 
-     breaks = 40, col = cols_al[4], freq = F, border = cols[4])
+     breaks = 40, col = cols_ma_al[4], freq = F, border = cols_ma[4])
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Piciformes"]), add = T, 
-     breaks = 40, col = cols_al[5], freq = F, border = cols[5])
+     breaks = 40, col = cols_ma_al[5], freq = F, border = cols_ma[5])
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Psittaciformes"]), 
-     add = T, breaks = 40, col = cols_al[6], freq = F, border = cols[6])
+     add = T, breaks = 40, col = cols_ma_al[6], freq = F, border = cols_ma[6])
 title("A", adj = 0)
+legend("topright", pch = 15, bty = 'n', col = cols_ma_al[1:6], 
+       legend  = c("Apodiformes", "Charadriiformes", "Columbiformes",
+                   "Passeriformes", "Piciformes", "Psittaciformes"))
+
+cols_fe <- mako(7)[6:1]
+cols_fe_al <- rgb(t(col2rgb(cols_fe)), alpha = 150, maxColorValue = 255)
 
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Apodiformes"]),
      ylim = c(0, 1), xlim = c(0, 10), main = "", 
-     xlab = "log body mass (g) females", breaks = 30, 
-     col = cols_al[1], freq = F, border = cols[1])
+     xlab = "log female body mass (g)", breaks = 30, 
+     col = cols_fe_al[1], freq = F, border = cols_fe[1])
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Charadriiformes"]), 
-     add = T, breaks = 40, col = cols_al[2], freq = F, border = cols[2])
+     add = T, breaks = 40, col = cols_fe_al[2], freq = F, border = cols_fe[2])
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Columbiformes"]), add = T, 
-     breaks = 40, col = cols_al[3], freq = F, border = cols[3])
+     breaks = 40, col = cols_fe_al[3], freq = F, border = cols_fe[3])
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Passeriformes"]), add = T, 
-     breaks = 40, col = cols_al[4], freq = F, border = cols[4])
+     breaks = 40, col = cols_fe_al[4], freq = F, border = cols_fe[4])
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Piciformes"]), add = T, 
-     breaks = 40, col = cols_al[5], freq = F, border = cols[5])
+     breaks = 40, col = cols_fe_al[5], freq = F, border = cols_fe[5])
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Psittaciformes"]), 
-     add = T, breaks = 40, col = cols_al[6], freq = F, border = cols[6])
-
+     add = T, breaks = 40, col = cols_fe_al[6], freq = F, border = cols_fe[6])
 title("B", adj = 0)
-legend("topright", pch = 15, bty = 'n', col = cols_al[1:6], 
+legend("topright", pch = 15, bty = 'n', col = cols_fe_al[1:6], 
        legend  = c("Apodiformes", "Charadriiformes", "Columbiformes",
                    "Passeriformes", "Piciformes", "Psittaciformes"))
 
@@ -108,7 +125,7 @@ sdi <- numeric()
 for (i in 1:nrow(dat_red)) {
 	sdi[i] <- SDI(male = dat_red$Body_mass_g_M_mean[i],
 	              female = dat_red$Body_mass_g_F_mean[i],
-	              cutoff = TRUE)
+	              cutoff = FALSE)
 }
 names(sdi) <- dat_red$Scientific_name
 sdi <- sdi[complete.cases(sdi)]
@@ -122,34 +139,34 @@ sdi_disc[sdi_disc > 0] <- 1
 sdi_disc[sdi_disc == 0] <- 0
 sdi_disc[sdi_disc < 0] <- -1
 
-cols_pal <- c("#9966FF", "gray", "#E69F00")
+cols_pal <- c(male, monom, female)
 
 map <- make.simmap(tr_map, sdi_disc)
-set_cols <- setNames(c("#9966FF", "gray", "#E69F00"), c(-1, 0, 1))
+set_cols <- setNames(c(male, monom, female), c(-1, 0, 1))
 
 col1_lig <- lighten(cols_pal[1], amount = 0.4)
 col2_lig <- lighten(cols_pal[2], amount = 0.4)
 col3_lig <- lighten(cols_pal[3], amount = 0.4)
 
 col_body <- character()
-for (i in 1:length(body_size)) {
+for (i in 1:length(Body_mass_g_mean)) {
 	col_body[i] <- 
-		ifelse(sdi_disc[names(sdi_disc) == names(body_size)[i]] == 1, 
+		ifelse(sdi_disc[names(sdi_disc) == names(Body_mass_g_mean)[i]] == 1, 
 		       col3_lig, 
-		       ifelse(sdi_disc[names(sdi_disc) == names(body_size)[i]] == -1,
+		       ifelse(sdi_disc[names(sdi_disc) == names(Body_mass_g_mean)[i]] == -1,
 		              col1_lig, col2_lig))
 }
-names(col_body) <- names(body_size)
+names(col_body) <- names(Body_mass_g_mean)
 col_body <- col_body[map$tip.label]
 
 rbPal <- colorRampPalette(cols_pal)
 cols <- rbPal(101)[as.numeric(cut(1:101, breaks = 101))]
 
-pdf("figures/Figure2_cutoff.pdf", width = 9)
+pdf("figures/Figure2.pdf", width = 9)
 
 par(mar = c(0, 0, 1, 0))
 
-plotTree.wBars(map, log(body_size), scale = 2, tip.labels = F,
+plotTree.wBars(map, log(Body_mass_g_mean), scale = 2, tip.labels = F,
     type = "fan", method = "plotSimmap", colors = set_cols, lwd = 1, 
     border = NA, col = col_body, mar = c(0, 0, 1, 0), part = 0.5)
 
