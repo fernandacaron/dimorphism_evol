@@ -57,21 +57,33 @@ for (i in 1:nrow(dat_red)) {
                     dat_red$Body_mass_g_F_mean[i]))
 }
 names(mass) <- dat_red$Scientific_name 
+mass <- log(mass)
+
+mass_male <- log(dat_red$Body_mass_g_M_mean)
+names(mass_male) <- dat_red$Scientific_name
+
+mass_female <- log(dat_red$Body_mass_g_F_mean)
+names(mass_female) <- dat_red$Scientific_name
 
 ## 1. Exploração geral do SSD, auto-detectando shifts 
-pruned_tr1 <- treedata(tr, sdi, warnings = F)$phy
-subsdi <- treedata(tr, sdi, warnings = F)$data
-subsdi <- subsdi[match(pruned_tr1$tip.label, names(subsdi))]
-RR_sdi <- RRphylo(tree = pruned_tr1, y = subsdi)
+a <- Sys.time()
 
-pruned_tr2 <- treedata(tr, mass, warnings = F)$phy
-submass <- treedata(tr, mass, warnings = F)$data
-submass <- submass[match(pruned_tr2$tip.label, names(subdat))]
-RR_mass <- RRphylo(tree = pruned_tr2, y = submass)
+tr_sdi <- treedata(tr, sdi, warnings = F)$phy
+subsdi <- sdi[names(sdi) %in% tr_sdi$tip.label]
+subsdi <- subsdi[match(tr_sdi$tip.label, names(subsdi))]
+RR_sdi <- RRphylo(tree = tr_sdi, y = subsdi)
+
+tr_mass <- treedata(tr, mass, warnings = F)$phy
+submass <- mass[names(mass) %in% tr_mass$tip.label]
+submass <- submass[match(tr_mass$tip.label, names(submass))]
+RR_mass <- RRphylo(tree = tr_mass, y = submass)
 
 cov <- c(RR_mass$ace, submass)
 
-search.shift(RR, auto.recognize = "yes", covariate = "TRUE", cov = cov)
+search.shift(RR_sdi, status.type = "clade", cov = cov, 
+             filename = paste(tempdir(), "RRphylo1", sep = "/"))
+
+b <- Sys.time()
 
 ## 2. Usando SSD como state
 sdi_disc <- sdi
@@ -80,7 +92,20 @@ sdi_disc[sdi_disc == 0] <- 0
 sdi_disc[sdi_disc < 0] <- -1
 sdi_disc <- sdi_disc[match(pruned_tr1$tip.label, names(sdi_disc))]
 
-search.shift(RR, status.type = "sparse", state = sdi_disc, 
-             auto.recognize = "yes", covariate = "TRUE", cov = cov)
+tr_male <- treedata(tr, mass_male, warnings = F)$phy
+submale <- mass_male[names(mass_male) %in% tr_male$tip.label]
+submale <- submale[match(tr_male$tip.label, names(submale))]
+RR_male <- RRphylo(tree = tr_male, y = submale)
 
+tr_female <- treedata(tr, mass_female, warnings = F)$phy
+subfemale <- mass_female[names(mass_female) %in% tr_female$tip.label]
+subfemale <- subfemale[match(tr_female$tip.label, names(subfemale))]
+RR_female <- RRphylo(tree = tr_female, y = subfemale)
+
+search.shift(RR_male, status.type = "sparse", state = sdi_disc, cov = submale,
+             filename = paste(tempdir(), "rrphylo_male", sep = "/"))
+
+search.shift(RR_female, status.type = "sparse", state = sdi_disc, 
+             cov = subfemale, filename = paste(tempdir(), "rrphylo_female", 
+                                               sep = "/"))
 

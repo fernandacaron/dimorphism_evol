@@ -2,21 +2,22 @@ rm(list = ls())
 
 setwd("Documents/Lab/dimorph_evol")
 
-library(phytools)
-library(geiger)
-library(viridis)
-library(colorspace)
-library(letsR)
-library(stringi)
-library(maptools)
+library(phytools) # Phylogenetic Tools for Comparative Biology (and Other Things)
+library(geiger) # Analysis of Evolutionary Diversification
+library(viridis) # Colorblind-Friendly Color Maps for R
+library(colorspace) # A Toolbox for Manipulating and Assessing Colors and Palettes
+library(letsR) # Data Handling and Analysis in Macroecology
+library(stringi) # Character String Processing Facilities
+library(maptools) # Tools for Handling Spatial Objects
 
 dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
+tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
 
 # definir cores
-male <- viridis(20)[1]
+male <- mako(20)[9]
 #male <- "#9966FF"
 monom <- "gray"
-female <- mako(7)[4]
+female <- rocket(20)[9]
 #female <- "#E69F00"
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -35,13 +36,8 @@ dat_red <- cbind(dat_red, Body_mass_g_mean)
 pdf("figures/Figure1.pdf", height = 9, width = 8)
 layout(matrix(1:2, ncol = 1))
 
-colorRampAlpha  <-  function(..., n, alpha) {
-  colors  <-  colorRampPalette(...)(n)
-  paste(colors, sprintf("%x", ceiling(255*alpha)), sep = "")
-}
-
-cols_ma <- colorRampAlpha(c(lighten(male, 0.8), male, "black"), n = 6, alpha = 1)
-cols_ma_al <- colorRampAlpha(c(lighten(male, 0.8), male, "black"), n = 6, alpha = 0.6)
+cols_ma <- mako(7)[6:1]
+cols_ma_al <- rgb(t(col2rgb(cols_ma)), alpha = 150, maxColorValue = 255)
 
 hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Apodiformes"]), 
      ylim = c(0, 1), xlim = c(0, 10), main = "", 
@@ -62,7 +58,7 @@ legend("topright", pch = 15, bty = 'n', col = cols_ma_al[1:6],
        legend  = c("Apodiformes", "Charadriiformes", "Columbiformes",
                    "Passeriformes", "Piciformes", "Psittaciformes"))
 
-cols_fe <- mako(7)[6:1]
+cols_fe <- rocket(7)[6:1]
 cols_fe_al <- rgb(t(col2rgb(cols_fe)), alpha = 150, maxColorValue = 255)
 
 hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Apodiformes"]),
@@ -130,8 +126,6 @@ for (i in 1:nrow(dat_red)) {
 names(sdi) <- dat_red$Scientific_name
 sdi <- sdi[complete.cases(sdi)]
 
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
-
 tr_map <- treedata(tr[[1]], sdi)$phy
 
 sdi_disc <- sdi
@@ -139,9 +133,9 @@ sdi_disc[sdi_disc > 0] <- 1
 sdi_disc[sdi_disc == 0] <- 0
 sdi_disc[sdi_disc < 0] <- -1
 
-cols_pal <- c(male, monom, female)
-
 map <- make.simmap(tr_map, sdi_disc)
+
+cols_pal <- c(male, monom, female)
 set_cols <- setNames(c(male, monom, female), c(-1, 0, 1))
 
 col1_lig <- lighten(cols_pal[1], amount = 0.4)
@@ -246,16 +240,19 @@ pal <- colorRampPalette(viridis(20))
 
 map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
     mar = c(0, 0, 0, 4))
-plot(pam_mal, axes = FALSE, box = FALSE, col_rich = pal, world = FALSE, 
-     plot = FALSE, add = TRUE)
+plot(pam_mal, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
+     add = TRUE, col_rich = colorRampPalette(mako(100)))
 title("Richness male-biased SSD", adj = 0, line = -3, cex.main = 2)
 
 map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
     mar = c(0, 0, 0, 4))
-plot(pam_fem, axes = FALSE, box = FALSE, col_rich = pal, world = FALSE, 
-     plot = FALSE, add = TRUE)
+plot(pam_fem, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
+     add = TRUE, col_rich = colorRampPalette(rocket(100)))
 title("Richness female-biased SSD", adj = 0, line = -3, cex.main = 2)
 
 dev.off()
+
+
+
 
 

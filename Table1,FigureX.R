@@ -18,33 +18,35 @@ rownames(subdat) <- dat$Scientific_name[complete.cases(dat$Body_mass_g_M_mean) &
 subdat$Body_mass_g_M_mean <- log(subdat$Body_mass_g_M_mean)
 subdat$Body_mass_g_F_mean <- log(subdat$Body_mass_g_F_mean)
 
-modelComp<-function(tr, data) {
+modelComp <- function(tr, data) {
 	xx <- treedata(tr, data, warnings = FALSE)
 	tree <- xx$phy
 	data <- xx$data
 	# BMM multi-rate/multi-selective regimes, BM1 unique rate of evolution/trait
-	fit1 <- mvBM(tree, data, model = "BM1", optimization = c("subplex"))
+	fit1 <- mvBM(tree, data, model = "BM1", optimization = c("L-BFGS-B"))
 	# Constraint faz que com sigma fique igual para os dois caracteres
 	fit2 <- mvBM(tree, data, model = "BM1", param = list(constraint = TRUE),
-	             optimization = c("subplex"))
+	             optimization = c("L-BFGS-B"))
 	res <- AIC(fit2) -AIC(fit1)
 	res
 }
 
-t0<-Sys.time()
+# optimization = "L-BFGS-B"    # 3.852359 hours
+# optimization = "Nelder-Mead" # 3.257686 hours
+# optimization = "subplex"     # 12.4687 hours
+# Resultados iguais nos três
+
+t0 <- Sys.time()
 res <- numeric()
-for (i in 1:10) {
-	a <- Sys.time()
+for (i in 1:5) {
 	res[i] <- modelComp(tr[[i]], subdat)
-	b <- Sys.time()
-	print(b-a)
 }
-t1<-Sys.time()
+t1 <- Sys.time()
 t1-t0
 
 write.csv(res, "data/aves/rates.csv")
 
-phyloSig<-function(tr, data) {
+phyloSig <- function(tr, data) {
 	xx <- treedata(tr, data, warnings = FALSE)
 	tree <- xx$phy
 	data <- xx$data
