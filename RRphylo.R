@@ -71,7 +71,10 @@ a <- Sys.time()
 tr_sdi <- treedata(tr, sdi, warnings = F)$phy
 subsdi <- sdi[names(sdi) %in% tr_sdi$tip.label]
 subsdi <- subsdi[match(tr_sdi$tip.label, names(subsdi))]
+subsdi <- as.matrix(subsdi)
 RR_sdi <- RRphylo(tree = tr_sdi, y = subsdi)
+
+b <- Sys.time()
 
 tr_mass <- treedata(tr, mass, warnings = F)$phy
 submass <- mass[names(mass) %in% tr_mass$tip.label]
@@ -83,7 +86,7 @@ cov <- c(RR_mass$ace, submass)
 search.shift(RR_sdi, status.type = "clade", cov = cov, 
              filename = paste(tempdir(), "RRphylo1", sep = "/"))
 
-b <- Sys.time()
+
 
 ## 2. Usando SSD como state
 sdi_disc <- sdi

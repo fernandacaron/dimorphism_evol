@@ -33,51 +33,65 @@ names(Body_mass_g_mean) <- dat_red$Scientific_name
 dat_red <- cbind(dat_red, Body_mass_g_mean)
 
 ## Figure 1
-pdf("figures/Figure1.pdf", height = 9, width = 8)
+pdf("figures/Figure1.1.pdf", height = 10, width = 8)
 layout(matrix(1:2, ncol = 1))
 
-cols_ma <- mako(7)[6:1]
+cols_ma <- mako(10)[9:1]
 cols_ma_al <- rgb(t(col2rgb(cols_ma)), alpha = 150, maxColorValue = 255)
 
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Apodiformes"]), 
-     ylim = c(0, 1), xlim = c(0, 10), main = "", 
-     xlab = "log male body mass (g)", breaks = 30, 
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Accipitriformes"]), 
+     ylim = c(0, 3), xlim = c(0, 5), main = "", 
+     xlab = "log male body mass (g)", breaks = 20, 
      col = cols_ma_al[1], freq = F, border = cols_ma[1])
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Charadriiformes"]), 
-     add = T, breaks = 40, col = cols_ma_al[2], freq = F, border = cols_ma[2])
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Columbiformes"]), add = T, 
-     breaks = 40, col = cols_ma_al[3], freq = F, border = cols_ma[3])
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Passeriformes"]), add = T, 
-     breaks = 40, col = cols_ma_al[4], freq = F, border = cols_ma[4])
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Piciformes"]), add = T, 
-     breaks = 40, col = cols_ma_al[5], freq = F, border = cols_ma[5])
-hist(log(dat_red$Body_mass_g_M_mean[dat_red$Order == "Psittaciformes"]), 
-     add = T, breaks = 40, col = cols_ma_al[6], freq = F, border = cols_ma[6])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Anseriformes"]), 
+     add = T, breaks = 20, col = cols_ma_al[2], freq = F, border = cols_ma[2])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Apodiformes"]),, 
+     add = T, breaks = 20, col = cols_ma_al[3], freq = F, border = cols_ma[3])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Charadriiformes"]), 
+     add = T, breaks = 20, col = cols_ma_al[4], freq = F, border = cols_ma[4])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Columbiformes"]), 
+     add = T, breaks = 10, col = cols_ma_al[5], freq = F, border = cols_ma[5])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Galliformes"]), 
+     add = T, breaks = 20, col = cols_ma_al[6], freq = F, border = cols_ma[6])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Passeriformes"]), 
+     add = T, breaks = 20, col = cols_ma_al[7], freq = F, border = cols_ma[7])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Piciformes"]), add = T, 
+     breaks = 20, col = cols_ma_al[8], freq = F, border = cols_ma[8])
+hist(log10(dat_red$Body_mass_g_M_mean[dat_red$Order == "Psittaciformes"]), 
+     add = T, breaks = 20, col = cols_ma_al[9], freq = F, border = cols_ma[9])
 title("A", adj = 0)
-legend("topright", pch = 15, bty = 'n', col = cols_ma_al[1:6], 
-       legend  = c("Apodiformes", "Charadriiformes", "Columbiformes",
+legend("topright", pch = 15, bty = 'n', col = cols_ma_al[1:9], 
+       legend  = c("Accipitriformes", "Anseriformes", "Apodiformes", 
+                   "Charadriiformes", "Columbiformes", "Galliformes",
                    "Passeriformes", "Piciformes", "Psittaciformes"))
 
-cols_fe <- rocket(7)[6:1]
+cols_fe <- rocket(10)[9:1]
 cols_fe_al <- rgb(t(col2rgb(cols_fe)), alpha = 150, maxColorValue = 255)
 
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Apodiformes"]),
-     ylim = c(0, 1), xlim = c(0, 10), main = "", 
-     xlab = "log female body mass (g)", breaks = 30, 
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Accipitriformes"]),
+     ylim = c(0, 3), xlim = c(0, 5), main = "", 
+     xlab = "log female body mass (g)", breaks = 20, 
      col = cols_fe_al[1], freq = F, border = cols_fe[1])
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Charadriiformes"]), 
-     add = T, breaks = 40, col = cols_fe_al[2], freq = F, border = cols_fe[2])
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Columbiformes"]), add = T, 
-     breaks = 40, col = cols_fe_al[3], freq = F, border = cols_fe[3])
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Passeriformes"]), add = T, 
-     breaks = 40, col = cols_fe_al[4], freq = F, border = cols_fe[4])
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Piciformes"]), add = T, 
-     breaks = 40, col = cols_fe_al[5], freq = F, border = cols_fe[5])
-hist(log(dat_red$Body_mass_g_F_mean[dat_red$Order == "Psittaciformes"]), 
-     add = T, breaks = 40, col = cols_fe_al[6], freq = F, border = cols_fe[6])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Anseriformes"]), 
+     add = T, breaks = 20, col = cols_fe_al[2], freq = F, border = cols_fe[2])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Apodiformes"]), 
+     add = T, breaks = 20, col = cols_fe_al[3], freq = F, border = cols_fe[3])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Charadriiformes"]), 
+     add = T, breaks = 20, col = cols_fe_al[4], freq = F, border = cols_fe[4])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Columbiformes"]), 
+     add = T, breaks = 10, col = cols_fe_al[5], freq = F, border = cols_fe[5])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Galliformes"]), 
+     add = T, breaks = 10, col = cols_fe_al[6], freq = F, border = cols_fe[6])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Passeriformes"]), 
+     add = T, breaks = 20, col = cols_fe_al[7], freq = F, border = cols_fe[7])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Piciformes"]), add = T, 
+     breaks = 20, col = cols_fe_al[8], freq = F, border = cols_fe[8])
+hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Psittaciformes"]), 
+     add = T, breaks = 20, col = cols_fe_al[9], freq = F, border = cols_fe[9])
 title("B", adj = 0)
-legend("topright", pch = 15, bty = 'n', col = cols_fe_al[1:6], 
-       legend  = c("Apodiformes", "Charadriiformes", "Columbiformes",
+legend("topright", pch = 15, bty = 'n', col = cols_fe_al[1:9], 
+       legend  = c("Accipitriformes", "Anseriformes", "Apodiformes", 
+                   "Charadriiformes", "Columbiformes", "Galliformes",
                    "Passeriformes", "Piciformes", "Psittaciformes"))
 
 dev.off()
@@ -230,24 +244,22 @@ data(wrld_simpl)
 pam_mal <- lets.pamcrop(pam_mal, wrld_simpl, remove.sp = TRUE)
 pam_fem <- lets.pamcrop(pam_fem, wrld_simpl, remove.sp = TRUE)
 
-pdf("figures/Figure3.pdf", height = 18, width = 15)
+pdf("figures/Figure3.1.pdf", height = 18, width = 15)
 
 layout(matrix(1:2, ncol = 1))
 
 par(mar = c(0, 0, 0, 4))
 
-pal <- colorRampPalette(viridis(20))
-
 map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
     mar = c(0, 0, 0, 4))
 plot(pam_mal, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
-     add = TRUE, col_rich = colorRampPalette(mako(100)))
+     add = TRUE, col_rich = colorRampPalette(viridis(100)))
 title("Richness male-biased SSD", adj = 0, line = -3, cex.main = 2)
 
 map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
     mar = c(0, 0, 0, 4))
 plot(pam_fem, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
-     add = TRUE, col_rich = colorRampPalette(rocket(100)))
+     add = TRUE, col_rich = colorRampPalette(viridis(100)))
 title("Richness female-biased SSD", adj = 0, line = -3, cex.main = 2)
 
 dev.off()

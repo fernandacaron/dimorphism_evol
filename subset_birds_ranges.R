@@ -138,6 +138,7 @@ extractpos <- function (ras, shapepol, nomes, nomes2, cover, areashape,
 }
 
 
+
 for (i in 1:n) {
   print(i)
   pospos2 <- extractpos(ras, bird_ranges_spatial[i, ], nomes, nomes2, cover,
