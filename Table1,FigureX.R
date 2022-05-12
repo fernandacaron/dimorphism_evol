@@ -125,6 +125,7 @@ multiModelComp <- function(phy, data, taxon = NULL, ntree = 1) {
 # optimization = "subplex"     # 12.4687 hours
 # Resultados iguais nos três
 
+
 ## Aves = 105 spp
 fit_ave <- multiModelComp(phy = tr, data = subdat, ntree = 5)
 
