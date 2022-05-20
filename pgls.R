@@ -68,6 +68,8 @@ tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")[[1]]
 # Climatic data
 bio <- getData('worldclim', var = 'bio', res = 10)
 
+# https://pubs.usgs.gov/ds/691/ds691.pdf
+
 # bio1: Annual Mean Temp
 bio1 <- bio@layers[[1]]
 bio1 <- bio1/10
@@ -75,17 +77,14 @@ pam_bio1 <- as.data.frame(lets.addvar(pam, bio1))
 
 # bio12: Annual Prec
 bio12 <- bio@layers[[12]]
-bio12 <- bio12/10
 pam_bio12 <- as.data.frame(lets.addvar(pam, bio12))
 
 # bio4: Season Temp
 bio4 <- bio@layers[[4]]
-bio4 <- bio4/10
 pam_bio4 <- as.data.frame(lets.addvar(pam, bio4))
 
 # bio15: Season Prec
 bio15 <- bio@layers[[15]]
-bio15 <- bio15/10
 pam_bio15 <- as.data.frame(lets.addvar(pam, bio15))
 
 npp <- raster("data/npp-geotiff/npp_geotiff.tif")
@@ -107,10 +106,11 @@ for (i in 1:length(pam$Species_name)) {
   birds$bio4[i] <- mean(spp_bio4, na.rm = TRUE)
   birds$bio15[i] <- mean(spp_bio15, na.rm = TRUE)
   birds$npp[i] <- mean(spp_npp, na.rm = TRUE)
+  
   birds$SDI[i] <- sdi[names(sdi) == spp]
 }
 
-#for (i in 1:3) {
-  comp_data <- comparative.data(tr, birds, names.col = Species)
+for (i in 1:10) {
+  comp_data <- comparative.data(tr[[i]], birds, names.col = Species)
   pgls <- pgls(SDI ~ bio1 + bio12 + bio4 + bio15 + npp, comp_data)
-#}
+}

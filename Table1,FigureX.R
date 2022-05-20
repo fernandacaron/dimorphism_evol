@@ -128,42 +128,52 @@ multiModelComp <- function(phy, data, taxon = NULL, ntree = 1) {
 
 ## Aves = 105 spp
 fit_ave <- multiModelComp(phy = tr, data = subdat, ntree = 5)
+save(fit_ave, file = "data/aves/fit_ave.RData")
 
 ## Columbiformes = 105 spp
 fit_col <- multiModelComp(phy = tr, data = subdat, taxon = "Columbiformes",
                           ntree = 100)
+save(fit_col, file = "data/aves/fit_col.RData")
 
 ## Psittaciformes = 131 spp
 fit_psi <- multiModelComp(phy = tr, data = subdat, taxon = "Psittaciformes",
                           ntree = 100)
+save(fit_psi, file = "data/aves/fit_psi.RData")
 
 ## Anseriformes = 150 spp
 fit_ans <- multiModelComp(phy = tr, data = subdat, taxon = "Anseriformes",
                           ntree = 100)
+save(fit_ans, file = "data/aves/fit_ans.RData")
 
 ## Accipitriformes = 169 spp
 fit_acc <- multiModelComp(phy = tr, data = subdat, taxon = "Accipitriformes",
                           ntree = 100)
+save(fit_acc, file = "data/aves/fit_acc.RData")
 
 ## Galliformes = 179 spp
 fit_gal <- multiModelComp(phy = tr, data = subdat, taxon = "Galliformes",
                           ntree = 100)
+save(fit_gal, file = "data/aves/fit_gal.RData")
 
 ## Piciformes = 217 spp
 fit_pic <- multiModelComp(phy = tr, data = subdat, taxon = "Piciformes",
                           ntree = 100)
+save(fit_pic, file = "data/aves/fit_pic.RData")
 
 ## Apodiformes = 247 spp
 fit_apo <- multiModelComp(phy = tr, data = subdat, taxon = "Apodiformes",
                           ntree = 100)
+save(fit_apo, file = "data/aves/fit_apo.RData")
 
 ## Charadriiformes = 252 spp
 fit_cha <- multiModelComp(phy = tr, data = subdat, taxon = "Charadriiformes",
                           ntree = 100)
+save(fit_cha, file = "data/aves/fit_cha.RData")
 
 ## Passeriformes = 2290 spp
 fit_pas <- multiModelComp(phy = tr, data = subdat, taxon = "Passeriformes",
-                          ntree = 5)
+                          ntree = 100)
+save(fit_pas, file = "data/aves/fit_pas.RData")
 
 
 ## Table 1
