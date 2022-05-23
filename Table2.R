@@ -16,6 +16,7 @@ colnames(pam$Presence_and_Absence_Matrix) <-
   stri_replace_all_fixed(colnames(pam$Presence_and_Absence_Matrix), " ", "_")
 pam$Species_name <- stri_replace_all_fixed(pam$Species_name, " ", "_")
 
+tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
 dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -63,7 +64,45 @@ sdi <- sdi[complete.cases(sdi)]
 sdi <- sdi[names(sdi) %in% pam$Species_name]
 sdi <- sdi[pam$Species_name]
 
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")[[1]]
+# Latitude midpoint
+
+# Midpoint da longitude (x) e latitude (y) - Não sei se o método é esse mesmo, 
+# mas visualizando parece ok
+pam1 <- lets.subsetPAM(pam, pam$Species_name[1:500], remove.cells = T)
+pam2 <- lets.subsetPAM(pam, pam$Species_name[501:1000], remove.cells = T)
+pam3.1 <- lets.subsetPAM(pam, pam$Species_name[1001:1125], remove.cells = T)
+pam3.2 <- lets.subsetPAM(pam, pam$Species_name[1126:1250], remove.cells = T)
+pam3.3 <- lets.subsetPAM(pam, pam$Species_name[1250:1350], remove.cells = T)
+pam3.4 <- lets.subsetPAM(pam, pam$Species_name[1351:1500], remove.cells = T)
+pam4.1 <- lets.subsetPAM(pam, pam$Species_name[1501:1625], remove.cells = T)
+pam4.2 <- lets.subsetPAM(pam, pam$Species_name[1626:1750], remove.cells = T)
+pam4.3 <- lets.subsetPAM(pam, pam$Species_name[1751:2000], remove.cells = T)
+pam5 <- lets.subsetPAM(pam, pam$Species_name[2001:2500], remove.cells = T)
+pam6.1 <- lets.subsetPAM(pam, pam$Species_name[2501:2750], remove.cells = T)
+pam6.2 <- lets.subsetPAM(pam, pam$Species_name[2751:3000], remove.cells = T)
+pam7 <- lets.subsetPAM(pam, pam$Species_name[3001:3500], remove.cells = T)
+pam8 <- lets.subsetPAM(pam, pam$Species_name[3501:4000], remove.cells = T)
+pam9 <- lets.subsetPAM(pam, pam$Species_name[4001:4080], remove.cells = T)
+
+mid1 <- lets.midpoint(pam1, method = "CMD")
+mid2 <- lets.midpoint(pam2, method = "CMD")
+mid3.1 <- lets.midpoint(pam3.1, method = "CMD")
+mid3.2 <- lets.midpoint(pam3.2, method = "CMD")
+mid3.3 <- lets.midpoint(pam3.3, method = "CMD")
+mid3.3 <- lets.midpoint(pam3.4, method = "CMD")
+mid4.1 <- lets.midpoint(pam4.1, method = "CMD")
+mid4.2 <- lets.midpoint(pam4.2, method = "CMD")
+mid4.3 <- lets.midpoint(pam4.3, method = "CMD")
+mid5 <- lets.midpoint(pam5, method = "CMD")
+mid6.1 <- lets.midpoint(pam6.1, method = "CMD")
+mid6.2 <- lets.midpoint(pam6.2, method = "CMD")
+mid7 <- lets.midpoint(pam7, method = "CMD")
+mid8 <- lets.midpoint(pam8, method = "CMD")
+mid9 <- lets.midpoint(pam9, method = "CMD")
+
+pam1 <- lets.subsetPAM(pam, pam$Species_name[1:2040], remove.cells = T)
+
+mid <- lets.midpoint(pam, method = "CMD")
 
 # Climatic data
 bio <- getData('worldclim', var = 'bio', res = 10)
@@ -110,6 +149,8 @@ for (i in 1:length(pam$Species_name)) {
   birds$SDI[i] <- sdi[names(sdi) == spp]
 }
 
+# We excluded highly correlated variables (assessed by variance inflation 
+# factor values >10) to minimize multicollinearity.
 for (i in 1:10) {
   comp_data <- comparative.data(tr[[i]], birds, names.col = Species)
   pgls <- pgls(SDI ~ bio1 + bio12 + bio4 + bio15 + npp, comp_data)
