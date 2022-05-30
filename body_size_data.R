@@ -12,16 +12,14 @@ library(stringi)
 ## e com coluna "Species"
 
 getSppTraits <- function(data, ref, traitCol, trait) {
+
 	for (i in 1:nrow(data)) {
 		data[colnames(data) == traitCol][i, ] <- 
 			ifelse(length(ref[colnames(ref) == 
                     trait][ref$Species == data$Scientific_name[i], ]) == 0,
-			       data[colnames(data) == traitCol][i,],
-			       ifelse(is.na(ref[colnames(ref) == 
-                          trait][ref$Species == data$Scientific_name[i], ]),
-			              data[colnames(data) == traitCol][i, ], 
-			              ref[colnames(ref) == 
-                    trait][ref$Species == data$Scientific_name[i], ]))
+			       data[colnames(data) == traitCol][i, ],
+             ref[colnames(ref) == 
+                    trait][ref$Species == data$Scientific_name[i], ])
 		}
   return(data)
 }
@@ -65,7 +63,7 @@ dat_av <- read.csv("data/aves/taxonomyAve.csv")
 ref_av_1 <- read.csv("data/aves/Ocampo&al2020_DataS1_BodyMass.csv")
 
 #Lislevand et al. 2007 - Body_mass_g_M_2 e Body_mass_g_F_2
-ref_av_2 <- read.csv("data/aves/Lislevand2007_19aug21.csv") 
+ref_av_2 <- read.csv("data/aves/Lislevand2007_30may22.csv") 
 colnames(ref_av_2)[colnames(ref_av_2) == "Species_name"] <- "Species"
 ref_av_2$Species <- stri_replace_all_fixed(ref_av_2$Species, " ", "_")
 ref_av_2$M_mass[ref_av_2$M_mass == -999] <- NA
@@ -115,7 +113,7 @@ for (i in 1:nrow(dat_av)) {
   }
 }
 
-write.csv(dat_av, "data/aves/BodySizeAve_18jan22.csv")
+write.csv(dat_av, "data/aves/BodySizeAve_30may22.csv")
 
 ## Mammals
 

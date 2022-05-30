@@ -254,14 +254,110 @@ dev.off()
 
 # Figure 3
 
-pam <- readRDS("data/aves/pam.rds")
-colnames(pam$Presence_and_Absence_Matrix) <-
-  stri_replace_all_fixed(colnames(pam$Presence_and_Absence_Matrix), " ", "_")
-pam$Species_name <- stri_replace_all_fixed(pam$Species_name, " ", "_")
+map.SSD <- function(data, func = mean, cols = NULL, figFolder, fileName) { 
+  # de Tobias et al. (2022)
+  
+  # Behrmann equal area (96 x 96km) grid shapefile
+  grid <- rgdal::readOGR("data/aves/spatial/BehrmannMeterGrid_WGS84_land.shp")
+  
+  # Country borders shapefile
+  countriesGeo <- rgdal::readOGR("data/aves/spatial/all_countries.shp")
+  
+  # gridded species geographic range data - Birdlife taxonomy 
+  rangeData <- read.csv("data/aves/spatial/AllSpeciesBirdLifeMaps2019.csv")
 
-subsdi <- sdi_disc[names(sdi_disc) %in% pam$Species_name]
+  rangeData$Species <- stri_replace_all_fixed(rangeData$Species, " ", "_")
 
-subsdi <- subsdi[pam$Species_name]
+  rangeData <- rangeData[rangeData$Species %in% names(data), ]
+  
+  # data processing and cleaning
+
+  # set grid and country shapefile to Behrmann projection
+  P4S.Behr <- CRS("+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs")
+  gridB <- spTransform(grid, P4S.Behr)
+  countries <- spTransform(countriesGeo, P4S.Behr)
+  # simplify country shapefile - needed for plotting   
+  countriesS <- gSimplify(countries, tol = 10000, topologyPreserve = TRUE)
+  # convert to simple feature for plotting with ggplot
+  countriesS2 <- st_as_sf(countriesS)
+
+  # Maps
+
+  # assign trait data to each species in range database
+  rangeData$SDI <- data[match(rangeData$Species, names(data))]
+
+  # remove rows (i.e. cells x species) with no trait data
+  rangeData <- na.omit(rangeData)
+  length(unique(na.omit(rangeData$Species)))
+
+  # calculate median trait value per cell
+  SDIperCell <- split(rangeData$SDI, rangeData$WorldID)
+  SDIperCell <- lapply(SDIperCell, function(x) x[!is.na(x)])
+  SDI_median_perCell <- sapply(SDIperCell, func)
+
+  # assign values to grid shapefile
+  gridB@data$SDI_median_perCell <- NA
+  gridB@data$SDI_median_perCell[match(names(SDI_median_perCell), 
+                                      gridB@data$WorldID)] <- 
+                                                as.numeric(SDI_median_perCell)
+
+  # set scale and colors
+  brks <- quantile(gridB@data$SDI_median_perCell, probs = seq(0, 1, 0.02),
+                   na.rm = T)
+  gridB@data$col_SDI_median <- NA
+  gridB@data$col_SDI_median <- findInterval(gridB@data$SDI_median_perCell, brks,
+                                            all.inside = TRUE)
+
+  if (is.null(cols)) {
+    colors <- c(brewer.pal(9, "Blues")[2:4], brewer.pal(9, "YlGnBu")[5:9])
+  } else {
+    colors <- cols
+  }
+  colors <- colorRampPalette(colors)(50)
+
+  # plot maps
+  gridB2 <- st_as_sf(gridB)
+
+  inches <- 4.5
+  res <- 600
+
+  ggplot.ssd <- ggplot(gridB2) +
+                 geom_sf(aes(fill = col_SDI_median, color = col_SDI_median)) +
+                 scale_colour_gradientn(colors = colors) +
+                 scale_fill_gradientn(colors = colors) +
+                 theme_void() 
+  
+  plot.ssd1 <- paste0(figFolder, "SSD_Map_", fileName, ".tiff")
+  tiff(plot.ssd1, width = inches*res, height = inches*res/2, units = "px")
+  print(ggplot.ssd)  
+  dev.off()  
+
+  plot.ssd2 <- paste0(figFolder, "SSD_Map_ScaleBar_", fileName, ".tiff")
+  tiff(plot.ssd2, width = 1*res, h = 0.1*res, units = "px")
+  par(mfrow = c(1, 1))
+  par(mar = c(1, 1, 1, 1))
+  brks <- seq(0, 1, 0.02)
+  breaks <- seq(0, 100, length.out = length(brks))
+  
+  ix <- 1:2
+  iy <- breaks
+  nBreaks <- length(breaks)
+  midpoints <- (breaks[1:(nBreaks - 1)] + breaks[2:nBreaks])/2
+  iz <- matrix(midpoints, nrow = 1, ncol = length(midpoints))
+  image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "",ylab = "", 
+        col = colors, breaks = breaks)
+  axis.args <- list(side = 1, padj = -1, mgp = c(3, 1, 0), las = 0, 
+                    cex.axis = 0.5, mgp = c(1, 0, 0), at = seq(0, 100, 25),
+                    labels = rep("", 5), tck = 0.2)
+  do.call("axis", axis.args)
+  box()
+  dev.off()
+  
+  # tick values
+  as.numeric(quantile(gridB@data$SDI_median_perCell, probs = seq(0, 1, 0.01),
+                      na.rm = T)[seq(1, 101, 25)])
+
+}
 
 pam_mal <- lets.subsetPAM(pam, pam[[3]][pam[[3]] %in% 
                                           names(subsdi[subsdi == -1])])
@@ -278,6 +374,11 @@ pdf("figures/Figure3.pdf", height = 18, width = 15)
 layout(matrix(1:2, ncol = 1))
 
 par(mar = c(0, 0, 0, 4))
+
+map.SSD(sdi1, cols = colorRampPalette(met.brewer(name = "Hiroshige",n = 100,
+                                                 direction = -1)), 
+        figFolder = "figures/", fileName = "Figure3.pdf")
+
 
 map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
     mar = c(0, 0, 0, 4))

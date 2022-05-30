@@ -4,9 +4,8 @@ setwd("Documents/lab/dimorph_evol")
 
 library(phytools)
 library(geiger)
-library(RRphylo)
 
-dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
+dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
 tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
 tr <- tr[1:100]
 
