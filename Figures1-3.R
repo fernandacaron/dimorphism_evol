@@ -6,11 +6,12 @@ library(phytools)
 library(geiger)
 library(MetBrewer)
 library(colorspace)
-library(letsR) 
 library(stringi)
-library(maptools) 
+library(rgeos)
+library(sf)
+library(ggplot2)
 
-dat <- read.csv("data/aves/BodySizeAves_18jan22.csv", row.names = 1)
+dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
 tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
 
 # definir cores
@@ -26,14 +27,17 @@ dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) &
 Body_mass_g_mean <- numeric()
 for (i in 1:nrow(dat_red)) {
   Body_mass_g_mean[i] <- mean(c(dat_red$Body_mass_g_M_mean[i], 
-                         dat_red$Body_mass_g_F_mean[i]))
+                                dat_red$Body_mass_g_F_mean[i]))
 }
 names(Body_mass_g_mean) <- dat_red$Scientific_name 
 
 dat_red <- cbind(dat_red, Body_mass_g_mean)
 
+#########################
+
 ## Figure 1
-pdf("figures/Figure1.pdf", height = 10, width = 13)
+
+pdf("figures/Figure1_org.pdf", height = 10, width = 13)
 layout(matrix(1:9, ncol = 3, byrow = TRUE))
 
 par(mar = c(4, 4, 2, 2))
@@ -106,6 +110,8 @@ hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Psittaciformes"]),
 title("Psittaciformes", adj = 0)
 
 dev.off()
+
+#########################
 
 ## Figure 2
 
@@ -181,11 +187,11 @@ col_body <- col_body[map$tip.label]
 rbPal <- colorRampPalette(cols_pal)
 cols <- rbPal(101)[as.numeric(cut(1:101, breaks = 101))]
 
-pdf("figures/Figure2_test2.pdf", width = 9)
+pdf("figures/Figure2_org.pdf", width = 9)
 
 par(mar = c(0, 0, 1, 0))
 
-plotTree.wBars(map, log10(Body_mass_g_mean), scale = 2, tip.labels = F,
+plotTree.wBars(map, log10(Body_mass_g_mean), scale = 4, tip.labels = F,
     type = "fan", method = "plotSimmap", colors = set_cols, lwd = 1, 
     border = NA, col = col_body, mar = c(0, 0, 1, 0), part = 0.5)
 
@@ -251,6 +257,127 @@ arc.cladelabels(text = "Psittaciformes", mark.node = F, cex = 0.6,
                                   "Psittaciformes"] %in% names(sdi_disc)])))
 
 dev.off()
+
+### Scale bar
+
+pdf("figures/Figure2_scalebar.pdf", width = 9)
+
+par(mar = c(0, 0, 1, 0))
+
+plotTree.barplot(map, log10(Body_mass_g_mean), scale = 4, tip.labels = F,
+                 lwd = 1, border = NA, mar = c(0, 0, 1, 0), part = 0.5, 
+                 args.axis = list(cex.axis = 0.8, at = c(0, 2.5, 5)))
+
+dev.off()
+
+#########################
+
+# Figure S1 - cutoff
+
+sdi_cut <- numeric()
+for (i in 1:nrow(dat_red)) {
+  sdi_cut[i] <- SDI(male = dat_red$Body_mass_g_M_mean[i],
+                    female = dat_red$Body_mass_g_F_mean[i],
+                    cutoff = TRUE, cut.value = 0.10)
+}
+names(sdi_cut) <- dat_red$Scientific_name
+sdi_cut <- sdi_cut[complete.cases(sdi_cut)]
+
+tr_map_cut <- treedata(tr[[1]], sdi_cut)$phy
+
+sdi_cut_disc <- sdi_cut
+sdi_cut_disc[sdi_cut_disc > 0] <- 1
+sdi_cut_disc[sdi_cut_disc == 0] <- 0
+sdi_cut_disc[sdi_cut_disc < 0] <- -1
+
+map_cut <- make.simmap(tr_map_cut, sdi_cut_disc)
+
+col_body_cut <- character()
+for (i in 1:length(Body_mass_g_mean)) {
+  col_body_cut[i] <- 
+    ifelse(sdi_cut_disc[names(sdi_cut_disc) == names(Body_mass_g_mean)[i]] == 1,
+           col3_lig, 
+           ifelse(sdi_cut_disc[names(sdi_cut_disc) == names(Body_mass_g_mean)[i]] == -1,
+                  col1_lig, col2_lig))
+}
+names(col_body_cut) <- names(Body_mass_g_mean)
+col_body_cut <- col_body_cut[map_cut$tip.label]
+
+rbPal <- colorRampPalette(cols_pal)
+cols <- rbPal(101)[as.numeric(cut(1:101, breaks = 101))]
+
+pdf("figures/FigureS1_org.pdf", width = 9)
+
+par(mar = c(0, 0, 1, 0))
+
+plotTree.wBars(map_cut, log10(Body_mass_g_mean), scale = 4, tip.labels = F,
+    type = "fan", method = "plotSimmap", colors = set_cols, lwd = 1, 
+    border = NA, col = col_body_cut, mar = c(0, 0, 1, 0), part = 0.5)
+
+legend("topright", col = cols_pal, bty = "n", pch = 15,
+       legend = c("Male-biased SSD", "Monomorphism", "Female-biased SSD"))
+
+par(xpd = TRUE)
+
+arc.cladelabels(text = "Accipitriformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Accipitriformes"][dat$Scientific_name[dat$Order == 
+                                  "Accipitriformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Anseriformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Anseriformes"][dat$Scientific_name[dat$Order == 
+                                  "Anseriformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Apodiformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Apodiformes"][dat$Scientific_name[dat$Order == 
+                                  "Apodiformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Charadriiformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Charadriiformes"][dat$Scientific_name[dat$Order == 
+                                  "Charadriiformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Columbiformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Columbiformes"][dat$Scientific_name[dat$Order == 
+                                  "Columbiformes"] %in% names(sdi_cut_disc)])))
+
+arc.cladelabels(text = "Galliformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Galliformes"][dat$Scientific_name[dat$Order == 
+                                  "Galliformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Passeriformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Passeriformes"][dat$Scientific_name[dat$Order == 
+                                  "Passeriformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Piciformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Piciformes"][dat$Scientific_name[dat$Order == 
+                                  "Piciformes"] %in% names(sdi_cut_disc)])))
+arc.cladelabels(text = "Psittaciformes", mark.node = F, cex = 0.6, 
+                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
+                node = findMRCA(map_cut, 
+                                c(dat$Scientific_name[dat$Order == 
+                                  "Psittaciformes"][dat$Scientific_name[dat$Order == 
+                                  "Psittaciformes"] %in% names(sdi_cut_disc)])))
+
+dev.off()
+
+#########################
 
 # Figure 3
 
@@ -327,12 +454,12 @@ map.SSD <- function(data, func = mean, cols = NULL, figFolder, fileName) {
                  scale_fill_gradientn(colors = colors) +
                  theme_void() 
   
-  plot.ssd1 <- paste0(figFolder, "SSD_Map_", fileName, ".tiff")
+  plot.ssd1 <- paste0(figFolder, fileName, ".tiff")
   tiff(plot.ssd1, width = inches*res, height = inches*res/2, units = "px")
   print(ggplot.ssd)  
   dev.off()  
 
-  plot.ssd2 <- paste0(figFolder, "SSD_Map_ScaleBar_", fileName, ".tiff")
+  plot.ssd2 <- paste0(figFolder, fileName, "_ScaleBar", ".tiff")
   tiff(plot.ssd2, width = 1*res, h = 0.1*res, units = "px")
   par(mfrow = c(1, 1))
   par(mar = c(1, 1, 1, 1))
@@ -359,46 +486,31 @@ map.SSD <- function(data, func = mean, cols = NULL, figFolder, fileName) {
 
 }
 
-pam_mal <- lets.subsetPAM(pam, pam[[3]][pam[[3]] %in% 
-                                          names(subsdi[subsdi == -1])])
-pam_fem <- lets.subsetPAM(pam, pam[[3]][pam[[3]] %in% 
-                                          names(subsdi[subsdi == 1])])
+sdi_fem <- sdi[sdi > 0]
+sdi_mal <- sdi[sdi < 0]
 
-data(wrld_simpl)
+map.SSD(data = sdi_mal, func = median, figFolder = "figures/", 
+        fileName = "Figure3_male", 
+        cols = met.brewer(name = "Hiroshige", n = 100, direction = 1))
 
-pam_mal <- lets.pamcrop(pam_mal, wrld_simpl, remove.sp = TRUE)
-pam_fem <- lets.pamcrop(pam_fem, wrld_simpl, remove.sp = TRUE)
-
-pdf("figures/Figure3.pdf", height = 18, width = 15)
-
-layout(matrix(1:2, ncol = 1))
-
-par(mar = c(0, 0, 0, 4))
-
-map.SSD(sdi1, cols = colorRampPalette(met.brewer(name = "Hiroshige",n = 100,
-                                                 direction = -1)), 
-        figFolder = "figures/", fileName = "Figure3.pdf")
+map.SSD(data = sdi_fem, func = median, figFolder = "figures/", 
+        fileName = "Figure3_female", 
+        cols = met.brewer(name = "Hiroshige", n = 100, direction = -1))
 
 
-map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
-    mar = c(0, 0, 0, 4))
-plot(pam_mal, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
-     add = TRUE, col_rich = colorRampPalette(met.brewer(name = "Hiroshige", 
-                                                        n = 100, 
-                                                        direction = -1)))
-title("Male-biased SSD", adj = 0, line = -3, cex.main = 2)
+#########################
 
-map("world", fill = TRUE, col = "gray", bg = "white", border = NA, 
-    mar = c(0, 0, 0, 4))
-plot(pam_fem, axes = FALSE, box = FALSE, world = FALSE, plot = FALSE, 
-     add = TRUE, col_rich = colorRampPalette(met.brewer(name = "Hiroshige", 
-                                                        n = 100, 
-                                                        direction = -1)))
-title("Female-biased SSD", adj = 0, line = -3, cex.main = 2)
+# Figure S2
 
-dev.off()
+sdi_cut_fem <- sdi_cut[sdi_cut > 0]
+sdi_cut_mal <- sdi_cut[sdi_cut < 0]
 
+map.SSD(data = sdi_cut_mal, func = median, figFolder = "figures/", 
+        fileName = "FigureS2_male", 
+        cols = met.brewer(name = "Hiroshige", n = 100, direction = 1))
 
-
+map.SSD(data = sdi_cut_fem, func = median, figFolder = "figures/", 
+        fileName = "FigureS2_female", 
+        cols = met.brewer(name = "Hiroshige", n = 100, direction = -1))
 
 
