@@ -6,6 +6,7 @@ library(mvMORPH)
 library(phytools)
 library(geiger)
 library(RRphylo)
+library(viridis)
 
 ########### mvBM + RRphylo ###########
 
@@ -464,33 +465,33 @@ plot.shift <- function(RR_shift, ncol = 1) {
   }
 }
 
-# Análises feitas no cluster da UFPR
+# Análises feitas no cluster da UFG
 RR1_col <- lapply(tr[1:100], search.shift.birds1, "Columbiformes")
-save(RR1_col, file = "data/aves/results/RR1_col.RData")
+#save(RR1_col, file = "data/aves/results/RR1_col.RData")
 
 RR1_psi <- lapply(tr[1:100], search.shift.birds1, "Psittaciformes")
-save(RR1_psi, file = "data/aves/results/RR1_psi.RData")
+#save(RR1_psi, file = "data/aves/results/RR1_psi.RData")
 
 RR1_ans <- lapply(tr[1:100], search.shift.birds1, "Anseriformes")
-save(RR1_ans, file = "data/aves/results/RR1_ans.RData")
+#save(RR1_ans, file = "data/aves/results/RR1_ans.RData")
 
 RR1_acc <- lapply(tr[1:100], search.shift.birds1, "Accipitriformes")
-save(RR1_acc, file = "data/aves/results/RR1_acc.RData")
+#save(RR1_acc, file = "data/aves/results/RR1_acc.RData")
 
 RR1_gal <- lapply(tr[1:100], search.shift.birds1, "Galliformes")
-save(RR1_gal, file = "data/aves/results/RR1_gal.RData")
+#save(RR1_gal, file = "data/aves/results/RR1_gal.RData")
 
 RR1_pic <- lapply(tr[1:100], search.shift.birds1, "Piciformes")
-save(RR1_pic, file = "data/aves/results/RR1_pic.RData")
+#save(RR1_pic, file = "data/aves/results/RR1_pic.RData")
 
 RR1_apo <- lapply(tr[1:100], search.shift.birds1, "Apodiformes")
-save(RR1_apo, file = "data/aves/results/RR1_apo.RData")
+#save(RR1_apo, file = "data/aves/results/RR1_apo.RData")
 
 RR1_cha <- lapply(tr[1:100], search.shift.birds1, "Charadriiformes")
-save(RR1_cha, file = "data/aves/results/RR1_cha.RData")
+#save(RR1_cha, file = "data/aves/results/RR1_cha.RData")
 
 RR1_pas <- lapply(tr[1:100], search.shift.birds1, "Passeriformes")
-save(RR1_pas, file = "data/aves/results/RR1_pas.RData")
+#save(RR1_pas, file = "data/aves/results/RR1_pas.RData")
 
 #load(file = "data/aves/results/RR1_col.RData")
 #load(file = "data/aves/results/RR1_psi.RData")
@@ -546,11 +547,6 @@ sig_pas <- lapply(RR1_pas, function(x) x$shift$all.clades[x$shift$all.clades$p.v
                                                             x$shift$all.clades$p.value >= 
                                                             0.975, ])
 
-#sig_ave <- lapply(RR1_ave, function(x) x$shift$all.clades[x$shift$all.clades$p.value <= 
-#                                                            0.025 | 
-#                                                            x$shift$all.clades$p.value >= 
-#                                                            0.975, ])
-
 data.boxplot <- function(data) {
   pos <- lapply(data, function(x) x$rate.difference[x$rate.difference > 0])
   neg <- lapply(data, function(x) x$rate.difference[x$rate.difference < 0])
@@ -573,7 +569,6 @@ dat_box_pic <- data.boxplot(sig_pic)
 dat_box_apo <- data.boxplot(sig_apo)
 dat_box_cha <- data.boxplot(sig_cha)
 dat_box_pas <- data.boxplot(sig_pas)
-#dat_box_ave <- data.boxplot(sig_ave)
 
 dat_hist_col <- do.call(rbind, sig_col)
 dat_hist_psi <- do.call(rbind, sig_psi)
@@ -584,11 +579,10 @@ dat_hist_pic <- do.call(rbind, sig_pic)
 dat_hist_apo <- do.call(rbind, sig_apo)
 dat_hist_cha <- do.call(rbind, sig_cha)
 dat_hist_pas <- do.call(rbind, sig_pas)
-#dat_hist_ave <- do.call(rbind, sig_ave)
 
-# Figure 4
+# Figure 6
 
-pdf("figures/Figure4.pdf", width = 9, height = 9)
+pdf("figures/Figure6.pdf", width = 9, height = 9)
 
 layout(matrix(1:9, ncol = 3, byrow = TRUE))
 
@@ -639,9 +633,9 @@ title("Psittaciformes", adj = 0)
 
 dev.off()
 
-# Figure 5 
+# Figure 7
 
-pdf("figures/Figure5.pdf", width = 9, height = 9)
+pdf("figures/Figure7.pdf", width = 9, height = 9)
 
 layout(matrix(1:9, nrow = 3, byrow = TRUE))
 

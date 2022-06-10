@@ -169,7 +169,7 @@ write.csv(aicw_res, "tables/Table1_unformatted.csv")
 
 stats2 <- function(x, taxon) {
 
-	sym <- c("Anseriformes", "Psittaciformes")
+	sym <- c("Anseriformes")
 
 	if (taxon %in% sym) {
 		stats <- list()
@@ -217,8 +217,6 @@ layout(matrix(1:9, ncol = 3, byrow = T))
 
 par(mar = c(2, 2, 2, 2))
 cols2 <- setNames(c(male, female), c("Male-biased SSD", "Female-biased SSD"))
-cols3 <- setNames(c(male, monom, female), 
-                  c("Male-biased SSD", "Monomorphism", "Female-biased SSD"))
 
 plot_acc <- plot(fitMK_acc[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
@@ -238,17 +236,17 @@ title("Anseriformes", adj = 0, line = -1)
 
 plot_apo <- plot(fitMK_apo[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_apo$x, plot_apo$y, col = cols3, border = NA,
+invisible(mapply(draw.circle, plot_apo$x, plot_apo$y, col = cols2, border = NA,
                  MoreArgs = list(radius = 0.13)))
-text(plot_apo$x, plot_apo$y, c("M", "=", "F"), cex = 1.3, col = "white", 
+text(plot_apo$x, plot_apo$y, c("M", "F"), cex = 1.3, col = "white", 
      font = 2)
 title("Apodiformes", adj = 0, line = -1)
 
 plot_cha <- plot(fitMK_cha[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_cha$x, plot_cha$y, col = cols3, border = NA,
+invisible(mapply(draw.circle, plot_cha$x, plot_cha$y, col = cols2, border = NA,
                  MoreArgs = list(radius = 0.13)))
-text(plot_cha$x, plot_cha$y, c("M", "=", "F"), cex = 1.3, col = "white", 
+text(plot_cha$x, plot_cha$y, c("M", "F"), cex = 1.3, col = "white", 
      font = 2)
 title("Charadriiformes", adj = 0, line = -1)
 
@@ -270,25 +268,25 @@ title("Galliformes", adj = 0, line = -1)
 
 plot_pas <- plot(fitMK_pas[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_pas$x, plot_pas$y, col = cols3, border = NA,
+invisible(mapply(draw.circle, plot_pas$x, plot_pas$y, col = cols2, border = NA,
                  MoreArgs = list(radius = 0.13)))
-text(plot_pas$x, plot_pas$y, c("M", "=", "F"), cex = 1.3, col = "white", 
+text(plot_pas$x, plot_pas$y, c("M", "F"), cex = 1.3, col = "white", 
      font = 2)
 title("Passeriformes", adj = 0, line = -1)
 
 plot_pic <- plot(fitMK_pic[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_pic$x, plot_pic$y, col = cols3, border = NA,
+invisible(mapply(draw.circle, plot_pic$x, plot_pic$y, col = cols2, border = NA,
                  MoreArgs = list(radius = 0.13)))
-text(plot_pic$x, plot_pic$y, c("M", "=", "F"), cex = 1.3, col = "white", 
+text(plot_pic$x, plot_pic$y, c("M", "F"), cex = 1.3, col = "white", 
      font = 2)
 title("Piciformes", adj = 0, line = -1)
 
 plot_psi <- plot(fitMK_psi[[1]]$fitSYM, show.zeros = FALSE, spacer = 0.2, 
                  mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_psi$x, plot_psi$y, col = cols3, border = NA,
+invisible(mapply(draw.circle, plot_psi$x, plot_psi$y, col = cols2, border = NA,
                  MoreArgs = list(radius = 0.13)))
-text(plot_psi$x, plot_psi$y, c("M", "=", "F"), cex = 1.3, col = "white", 
+text(plot_psi$x, plot_psi$y, c("M", "F"), cex = 1.3, col = "white", 
      font = 2)
 title("Psittaciformes", adj = 0, line = -1)
 
