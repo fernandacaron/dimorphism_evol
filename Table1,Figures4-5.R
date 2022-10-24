@@ -5,6 +5,7 @@ setwd("Documents/lab/dimorph_evol")
 library(phytools)
 library(geiger)
 library(plotrix)
+library(AICcmodavg)
 
 ########## MK + DR ##########
 
@@ -62,11 +63,11 @@ sdi <- as.factor(sdi)
 
 fitMK <- function(phy, sdi, data, taxon) {
 
-    subsdi <- sdi[names(sdi) %in% dat$Scientific_name[dat$Order == taxon]]
+  subsdi <- sdi[names(sdi) %in% dat$Scientific_name[dat$Order == taxon]]
 
-    pruned_tr <- treedata(phy, subsdi, warnings = F)$phy
-  	subsdi <- subsdi[names(subsdi) %in% pruned_tr$tip.label]
-  	subsdi <- subsdi[match(pruned_tr$tip.label, names(subsdi))]  
+  pruned_tr <- treedata(phy, subsdi, warnings = F)$phy
+	subsdi <- subsdi[names(subsdi) %in% pruned_tr$tip.label]
+	subsdi <- subsdi[match(pruned_tr$tip.label, names(subsdi))]  
 	
 	fitSYM <- fitMk(pruned_tr, subsdi, model = "SYM", pi = "fitzjohn")
 	fitARD <- fitMk(pruned_tr, subsdi, model = "ARD", pi = "fitzjohn")
@@ -310,10 +311,13 @@ sdi <- sdi[complete.cases(sdi)]
 # complete tree: calculting es statistic 
 es <- subset_es <- list()
 for(i in 1:length(tr)) {
-	es[[i]] <- compute_es(tr[[i]])
-	subset_es[[i]] <- es[[i]][names(es[[i]]) %in% names(sdi)]
-	subset_es[[i]] <- subset_es[[i]][match(names(sdi), names(subset_es[[i]]))]
+  es[[i]] <- compute_es(tr[[i]])
+  subset_es[[i]] <- es[[i]][names(es[[i]]) %in% names(sdi)]
+  subset_es[[i]] <- subset_es[[i]][match(names(sdi), names(subset_es[[i]]))]
 }
+
+essim_ave <- lapply(tr[1:100], essim, trait = sdi, nsim = 100)
+save(essim_ave, file = "data/aves/results/essim_ave.RData")
 
 male_al <- rgb(153/255, 102/255, 255/255, 0.3)
 monom_al <- rgb(190/255, 190/255, 190/255, 0.3)
@@ -328,7 +332,7 @@ for (i in 1:length(sdi)) {
 
 pdf("figures/Figure5.pdf")
 
-plot(sdi ~ subset_es[[1]], xlab = "DR statistic", ylab = "SDI", main = "",
+plot(sdi ~ subset_es[[1]], xlab = expression(lambda["DR"]), ylab = "SDI", main = "",
      pch = 16, col = cols)
 for (i in 2:100) {
 	points(sdi ~ subset_es[[i]], pch = 16, col = cols)

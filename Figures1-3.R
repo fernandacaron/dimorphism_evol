@@ -7,14 +7,16 @@ library(geiger)
 library(MetBrewer)
 library(colorspace)
 library(stringi)
-library(rgeos)
 library(sf)
+library(raster)
+library(dplyr)
+library(fasterize)
+library(maptools)
 library(ggplot2)
 
 dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
 tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
 
-# definir cores
 male <- "#9966FF"
 monom <- "gray"
 female <- "#E69F00"
@@ -32,8 +34,6 @@ for (i in 1:nrow(dat_red)) {
 names(Body_mass_g_mean) <- dat_red$Scientific_name 
 
 dat_red <- cbind(dat_red, Body_mass_g_mean)
-
-#########################
 
 ## Figure 1
 
@@ -110,8 +110,6 @@ hist(log10(dat_red$Body_mass_g_F_mean[dat_red$Order == "Psittaciformes"]),
 title("Psittaciformes", adj = 0)
 
 dev.off()
-
-#########################
 
 ## Figure 2
 
@@ -270,247 +268,180 @@ plotTree.barplot(map, log10(Body_mass_g_mean), scale = 4, tip.labels = F,
 
 dev.off()
 
-#########################
-
-# Figure S1 - cutoff
-
-sdi_cut <- numeric()
-for (i in 1:nrow(dat_red)) {
-  sdi_cut[i] <- SDI(male = dat_red$Body_mass_g_M_mean[i],
-                    female = dat_red$Body_mass_g_F_mean[i],
-                    cutoff = TRUE, cut.value = 0.10)
-}
-names(sdi_cut) <- dat_red$Scientific_name
-sdi_cut <- sdi_cut[complete.cases(sdi_cut)]
-
-tr_map_cut <- treedata(tr[[1]], sdi_cut)$phy
-
-sdi_cut_disc <- sdi_cut
-sdi_cut_disc[sdi_cut_disc > 0] <- 1
-sdi_cut_disc[sdi_cut_disc == 0] <- 0
-sdi_cut_disc[sdi_cut_disc < 0] <- -1
-
-map_cut <- make.simmap(tr_map_cut, sdi_cut_disc)
-
-col_body_cut <- character()
-for (i in 1:length(Body_mass_g_mean)) {
-  col_body_cut[i] <- 
-    ifelse(sdi_cut_disc[names(sdi_cut_disc) == names(Body_mass_g_mean)[i]] == 1,
-           col3_lig, 
-           ifelse(sdi_cut_disc[names(sdi_cut_disc) == names(Body_mass_g_mean)[i]] == -1,
-                  col1_lig, col2_lig))
-}
-names(col_body_cut) <- names(Body_mass_g_mean)
-col_body_cut <- col_body_cut[map_cut$tip.label]
-
-rbPal <- colorRampPalette(cols_pal)
-cols <- rbPal(101)[as.numeric(cut(1:101, breaks = 101))]
-
-pdf("figures/FigureS1_org.pdf", width = 9)
-
-par(mar = c(0, 0, 1, 0))
-
-plotTree.wBars(map_cut, log10(Body_mass_g_mean), scale = 4, tip.labels = F,
-    type = "fan", method = "plotSimmap", colors = set_cols, lwd = 1, 
-    border = NA, col = col_body_cut, mar = c(0, 0, 1, 0), part = 0.5)
-
-legend("topright", col = cols_pal, bty = "n", pch = 15,
-       legend = c("Male-biased SSD", "Monomorphism", "Female-biased SSD"))
-
-par(xpd = TRUE)
-
-arc.cladelabels(text = "Accipitriformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Accipitriformes"][dat$Scientific_name[dat$Order == 
-                                  "Accipitriformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Anseriformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Anseriformes"][dat$Scientific_name[dat$Order == 
-                                  "Anseriformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Apodiformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Apodiformes"][dat$Scientific_name[dat$Order == 
-                                  "Apodiformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Charadriiformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Charadriiformes"][dat$Scientific_name[dat$Order == 
-                                  "Charadriiformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Columbiformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Columbiformes"][dat$Scientific_name[dat$Order == 
-                                  "Columbiformes"] %in% names(sdi_cut_disc)])))
-
-arc.cladelabels(text = "Galliformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Galliformes"][dat$Scientific_name[dat$Order == 
-                                  "Galliformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Passeriformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Passeriformes"][dat$Scientific_name[dat$Order == 
-                                  "Passeriformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Piciformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.25, lab.offset = 1.3, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Piciformes"][dat$Scientific_name[dat$Order == 
-                                  "Piciformes"] %in% names(sdi_cut_disc)])))
-arc.cladelabels(text = "Psittaciformes", mark.node = F, cex = 0.6, 
-                col = "black", lwd = 1, ln.offset = 1.35, lab.offset = 1.4, 
-                node = findMRCA(map_cut, 
-                                c(dat$Scientific_name[dat$Order == 
-                                  "Psittaciformes"][dat$Scientific_name[dat$Order == 
-                                  "Psittaciformes"] %in% names(sdi_cut_disc)])))
-
-dev.off()
-
-#########################
-
 # Figure 3
 
-map.SSD <- function(data, func = mean, cols = NULL, figFolder, fileName) { 
-  # de Tobias et al. (2022)
-  
-  # Behrmann equal area (96 x 96km) grid shapefile
-  grid <- rgdal::readOGR("data/aves/spatial/BehrmannMeterGrid_WGS84_land.shp")
-  
-  # Country borders shapefile
-  countriesGeo <- rgdal::readOGR("data/aves/spatial/all_countries.shp")
-  
-  # gridded species geographic range data - Birdlife taxonomy 
-  rangeData <- read.csv("data/aves/spatial/AllSpeciesBirdLifeMaps2019.csv")
+## This part of the code was provided by Thomas Weeks
 
-  rangeData$Species <- stri_replace_all_fixed(rangeData$Species, " ", "_")
+birds <- st_read(dsn = "data/aves/spatial/BOTW/BOTW.gdb", layer = "All_Species")
 
-  rangeData <- rangeData[rangeData$Species %in% names(data), ]
-  
-  # data processing and cleaning
+birds$sci_name <- stri_replace_all_fixed(birds$sci_name, " ", "_")
 
-  # set grid and country shapefile to Behrmann projection
-  P4S.Behr <- CRS("+proj=cea +lon_0=0 +lat_ts=30 +x_0=0 +y_0=0 +datum=WGS84 +ellps=WGS84 +units=m +no_defs")
-  gridB <- spTransform(grid, P4S.Behr)
-  countries <- spTransform(countriesGeo, P4S.Behr)
-  # simplify country shapefile - needed for plotting   
-  countriesS <- gSimplify(countries, tol = 10000, topologyPreserve = TRUE)
-  # convert to simple feature for plotting with ggplot
-  countriesS2 <- st_as_sf(countriesS)
+dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
 
-  # Maps
-
-  # assign trait data to each species in range database
-  rangeData$SDI <- data[match(rangeData$Species, names(data))]
-
-  # remove rows (i.e. cells x species) with no trait data
-  rangeData <- na.omit(rangeData)
-  length(unique(na.omit(rangeData$Species)))
-
-  # calculate median trait value per cell
-  SDIperCell <- split(rangeData$SDI, rangeData$WorldID)
-  SDIperCell <- lapply(SDIperCell, function(x) x[!is.na(x)])
-  SDI_median_perCell <- sapply(SDIperCell, func)
-
-  # assign values to grid shapefile
-  gridB@data$SDI_median_perCell <- NA
-  gridB@data$SDI_median_perCell[match(names(SDI_median_perCell), 
-                                      gridB@data$WorldID)] <- 
-                                                as.numeric(SDI_median_perCell)
-
-  # set scale and colors
-  brks <- quantile(gridB@data$SDI_median_perCell, probs = seq(0, 1, 0.02),
-                   na.rm = T)
-  gridB@data$col_SDI_median <- NA
-  gridB@data$col_SDI_median <- findInterval(gridB@data$SDI_median_perCell, brks,
-                                            all.inside = TRUE)
-
-  if (is.null(cols)) {
-    colors <- c(brewer.pal(9, "Blues")[2:4], brewer.pal(9, "YlGnBu")[5:9])
+SDI <- function (male = male, female = female) {
+  if (male <= female) {
+    SDI <- (female/male) - 1
   } else {
-    colors <- cols
+    if (female < male) {
+      SDI <- -((male/female) - 1)
+    } 
   }
-  colors <- colorRampPalette(colors)(50)
-
-  # plot maps
-  gridB2 <- st_as_sf(gridB)
-
-  inches <- 4.5
-  res <- 600
-
-  ggplot.ssd <- ggplot(gridB2) +
-                 geom_sf(aes(fill = col_SDI_median, color = col_SDI_median)) +
-                 scale_colour_gradientn(colors = colors) +
-                 scale_fill_gradientn(colors = colors) +
-                 theme_void() 
   
-  plot.ssd1 <- paste0(figFolder, fileName, ".tiff")
-  tiff(plot.ssd1, width = inches*res, height = inches*res/2, units = "px")
-  print(ggplot.ssd)  
-  dev.off()  
-
-  plot.ssd2 <- paste0(figFolder, fileName, "_ScaleBar", ".tiff")
-  tiff(plot.ssd2, width = 1*res, h = 0.1*res, units = "px")
-  par(mfrow = c(1, 1))
-  par(mar = c(1, 1, 1, 1))
-  brks <- seq(0, 1, 0.02)
-  breaks <- seq(0, 100, length.out = length(brks))
+  return(SDI)
   
-  ix <- 1:2
-  iy <- breaks
-  nBreaks <- length(breaks)
-  midpoints <- (breaks[1:(nBreaks - 1)] + breaks[2:nBreaks])/2
-  iz <- matrix(midpoints, nrow = 1, ncol = length(midpoints))
-  image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "",ylab = "", 
-        col = colors, breaks = breaks)
-  axis.args <- list(side = 1, padj = -1, mgp = c(3, 1, 0), las = 0, 
-                    cex.axis = 0.5, mgp = c(1, 0, 0), at = seq(0, 100, 25),
-                    labels = rep("", 5), tck = 0.2)
-  do.call("axis", axis.args)
-  box()
-  dev.off()
-  
-  # tick values
-  as.numeric(quantile(gridB@data$SDI_median_perCell, probs = seq(0, 1, 0.01),
-                      na.rm = T)[seq(1, 101, 25)])
-
 }
+
+dat_red <- dat[, c(5, 9, 13)]
+dat_red <- dat_red[complete.cases(dat_red$Body_mass_g_M_mean) & 
+                     complete.cases(dat_red$Body_mass_g_F_mean), ]
+
+sdi <- numeric()
+for (i in 1:nrow(dat_red)) {
+  sdi[i] <- SDI(male = dat_red$Body_mass_g_M_mean[i],
+                female = dat_red$Body_mass_g_F_mean[i])
+}
+names(sdi) <- dat_red$Scientific_name
+
+r <- raster(ncols = 2160, nrows = 900, ymn = -60)
+raster_stack_fem <- r
+raster_stack_mal <- r
+
+birds2 <- birds %>% filter(st_geometry_type(Shape) != "MULTISURFACE")
+
+sdi <- sdi[names(sdi) %in% birds2$sci_name]
 
 sdi_fem <- sdi[sdi > 0]
 sdi_mal <- sdi[sdi < 0]
 
-map.SSD(data = sdi_mal, func = median, figFolder = "figures/", 
-        fileName = "Figure3_male", 
-        cols = met.brewer(name = "Hiroshige", n = 100, direction = 1))
+for (i in 1:length(sdi_fem)) {
+  print(i) 
+  
+  s <- as.character(names(sdi_fem)[i]) 
+  map_i <- subset(birds2, birds2$sci_name == s)
+  
+  for (j in 1:length(map_i$Shape)) { 
+    try(map_i$Shape[[j]] <- st_cast(map_i$Shape[[j]], 'MULTIPOLYGON'))
+  }
+  try(map_i$Shape <- st_cast(map_i$Shape, 'MULTIPOLYGON'))
+  
+  raster_i <- fasterize(st_as_sf(map_i$Shape), r)
+  
+  rastercells <- which(getValues(!is.na(raster_i))) 
+  raster_i[rastercells] <- sdi_fem[i]
+  
+  if(i == 1) {
+    raster_stack_fem <- raster_i
+  } else {
+    raster_stack_fem <- addLayer(raster_stack_fem, raster_i)
+  }
+}
 
-map.SSD(data = sdi_fem, func = median, figFolder = "figures/", 
-        fileName = "Figure3_female", 
-        cols = met.brewer(name = "Hiroshige", n = 100, direction = -1))
+av_full_fem <- stackApply(raster_stack_fem, indices = rep(1, length(sdi_fem)), 
+                          fun = median, na.rm = T) 
 
+for (i in 1:length(sdi_mal)) {
+  print(i) 
+  
+  s <- as.character(names(sdi_mal)[i]) 
+  map_i <- subset(birds2, birds2$sci_name == s)
+  
+  for (j in 1:length(map_i$Shape)) { 
+    try(map_i$Shape[[j]] <- st_cast(map_i$Shape[[j]], 'MULTIPOLYGON'))
+  }
+  try(map_i$Shape <- st_cast(map_i$Shape, 'MULTIPOLYGON'))
+  
+  raster_i <- fasterize(st_as_sf(map_i$Shape), r)
+  
+  rastercells <- which(getValues(!is.na(raster_i))) 
+  raster_i[rastercells] <- sdi_mal[i]
+  
+  if(i == 1) {
+    raster_stack_mal <- raster_i
+  } else {
+    raster_stack_mal <- addLayer(raster_stack_mal, raster_i)
+  }
+}
 
-#########################
+av_full_mal <- stackApply(raster_stack_mal, indices = rep(1, length(sdi_mal)), 
+                          fun = median, na.rm = T) 
 
-# Figure S2
+data(wrld_simpl)
+rem_fem1 <- extract(av_full_fem, wrld_simpl, cellnumbers = T, weights = T, 
+                    small = T)
+rem_fem2 <- do.call(rbind.data.frame, rem_fem1)[, 1]
+values(av_full_fem)[-rem_fem2] <- NA
 
-sdi_cut_fem <- sdi_cut[sdi_cut > 0]
-sdi_cut_mal <- sdi_cut[sdi_cut < 0]
+rem_mal1 <- extract(av_full_mal, wrld_simpl, cellnumbers = T, weights = T, 
+                    small = T)
+rem_mal2 <- do.call(rbind.data.frame, rem_mal1)[, 1]
+values(av_full_mal)[-rem_mal2] <- NA
 
-map.SSD(data = sdi_cut_mal, func = median, figFolder = "figures/", 
-        fileName = "FigureS2_male", 
-        cols = met.brewer(name = "Hiroshige", n = 100, direction = 1))
+brks_fem <- quantile(values(av_full_fem)[order(values(av_full_fem))], 
+                 probs = seq(0, 1, 0.02), na.rm = T)
+av_full_fem_p <- rasterToPoints(av_full_fem, spatial = TRUE)
+av_full_fem_df  <- data.frame(av_full_fem_p)
+av_full_fem_df <- av_full_fem_df %>% mutate(index_2 = cut(index_1, 
+                                                          breaks = brks_fem))
 
-map.SSD(data = sdi_cut_fem, func = median, figFolder = "figures/", 
-        fileName = "FigureS2_female", 
-        cols = met.brewer(name = "Hiroshige", n = 100, direction = -1))
+brks_mal <- quantile(values(av_full_mal)[order(values(av_full_mal))], 
+                 probs = seq(0, 1, 0.02), na.rm = T)
+av_full_mal_p <- rasterToPoints(av_full_mal, spatial = TRUE)
+av_full_mal_df  <- data.frame(av_full_mal_p)
+av_full_mal_df <- av_full_mal_df %>% mutate(index_2 = cut(index_1, 
+                                                          breaks = brks_mal))
+
+colors_fem <- met.brewer(name = "Hiroshige", n = 50, direction = -1)[1:50]
+colors_mal <- met.brewer(name = "Hiroshige", n = 50, direction = 1)[1:50]
+
+inches <- 4.5
+res <- 600
+
+ggplot_fem <- ggplot() +
+  geom_raster(data = av_full_fem_df, aes(x = x, y = y, fill = index_2), show.legend = FALSE) +
+  scale_fill_manual(values = colors_fem) +
+  theme_void() 
+
+plot_fem <- "Figure3_female.tiff"
+tiff(plot_fem, width = inches*res, height = inches*res/2, units = "px")
+print(ggplot_fem)  
+dev.off()  
+
+ggplot_mal <- ggplot() +
+  geom_raster(data = av_full_mal_df, aes(x = x, y = y, fill = index_2), show.legend = FALSE) +
+  scale_fill_manual(values = colors_mal) +
+  theme_void() 
+
+plot_mal <- "Figure3_male.tiff"
+tiff(plot_mal, width = inches*res, height = inches*res/2, units = "px")
+print(ggplot_mal)  
+dev.off() 
+
+plot_sca<- "Figure3_ScaleBar.tiff"
+tiff(plot_sca, width = 1*res, h = 0.1*res, units = "px")
+par(mfrow = c(1, 1))
+par(mar = c(1, 1, 1, 1))
+brks <- seq(0, 1, 0.02)
+breaks <- seq(0, 100, length.out = length(brks))
+
+ix <- 1:2
+iy <- breaks
+nBreaks <- length(breaks)
+midpoints <- (breaks[1:(nBreaks - 1)] + breaks[2:nBreaks])/2
+iz <- matrix(midpoints, nrow = 1, ncol = length(midpoints))
+image(iy, ix, t(iz), xaxt = "n", yaxt = "n", xlab = "", ylab = "", 
+      col = colors_fem, breaks = breaks)
+axis.args <- list(side = 1, padj = -1, mgp = c(3, 1, 0), las = 0, 
+                  cex.axis = 0.5, mgp = c(1, 0, 0), at = seq(0, 100, 25),
+                  labels = rep("", 5), tck = 0.2)
+do.call("axis", axis.args)
+box()
+dev.off()
+
+as.numeric(quantile(values(av_full_fem)[order(values(av_full_fem))], 
+                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)])
+
+as.numeric(quantile(values(av_full_mal)[order(values(av_full_mal))], 
+                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)])
+
 
 

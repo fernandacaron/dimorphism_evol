@@ -169,8 +169,8 @@ fit_apo <- multiModelComp(phy = tr, data = subdat, taxon = "Apodiformes",
                           ntree = 100)
 #save(fit_apo, file = "data/aves/results/fitBM_apo.RData")
 
-## Charadriiformes = 252 spp
-fit_cha <- multiModelComp(phy = tr, data = subdat, taxon = "Charadriiformes",
+## charadriiformes = 252 spp
+fit_cha <- multiModelComp(phy = tr, data = subdat, taxon = "charadriiformes",
                           ntree = 100)
 #save(fit_cha, file = "data/aves/results/fitBM_cha.RData")
 
@@ -641,67 +641,69 @@ layout(matrix(1:9, nrow = 3, byrow = TRUE))
 
 par(mar = c(4, 4, 4, 2))
 
-h_acc <- hist(dat_hist_acc$rate.difference, breaks = 25, plot = F)
-cuts_acc <- cut(h_acc$breaks, c(min(dat_hist_acc$rate.difference), 0,
-                            max(dat_hist_acc$rate.difference)))
-plot(h_acc, main = "", xlab = "", col = col_alp[cuts_acc], border = col[cuts_acc], 
-     xlim = c(-0.79, 0.86))
+hist(dat_hist_acc$rate.difference[dat_hist_acc$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", 
+     xlab = "", breaks = 20)
+hist(abs(dat_hist_acc$rate.difference[dat_hist_acc$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 15)
 title("Accipitriformes", adj = 0)
 
-h_ans <- hist(dat_hist_ans$rate.difference, breaks = 25, plot = F)
-cuts_ans <- cut(h_ans$breaks, c(min(dat_hist_ans$rate.difference), 0,
-                                max(dat_hist_ans$rate.difference)))
-plot(h_ans, main = "", xlab = "", ylab = "", col = col_alp[cuts_ans], 
-     border = col[cuts_ans], xlim = c(-0.79, 0.86))
+hist(dat_hist_ans$rate.difference[dat_hist_ans$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "", breaks = 30, ylim = c(0, 40))
+hist(abs(dat_hist_ans$rate.difference[dat_hist_ans$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 30)
 title("Anseriformes", adj = 0)
 
-h_apo <- hist(dat_hist_apo$rate.difference, breaks = 20, plot = F)
-cuts_apo <- cut(h_apo$breaks, c(min(dat_hist_apo$rate.difference), 0,
-                                max(dat_hist_apo$rate.difference)))
-plot(h_apo, main = "", xlab = "", ylab = "", col = col_alp[cuts_apo], 
-     border = col[cuts_apo], xlim = c(-0.79, 0.86))
+hist(dat_hist_apo$rate.difference[dat_hist_apo$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "", breaks = 20)
+hist(abs(dat_hist_apo$rate.difference[dat_hist_apo$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Apodiformes", adj = 0)
+legend("topright", pch = 15, bty = 'n', col = col_alp, 
+       legend  = c("Decrease", "Increase"))
 
-h_cha <- hist(dat_hist_cha$rate.difference, breaks = 20, plot = F)
-cuts_cha <- cut(h_cha$breaks, c(min(dat_hist_cha$rate.difference), 0,
-                                max(dat_hist_cha$rate.difference)))
-plot(h_cha, main = "", xlab = "", col = col_alp[cuts_cha], 
-     border = col[cuts_cha], xlim = c(-0.79, 0.86))
+hist(dat_hist_cha$rate.difference[dat_hist_cha$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", 
+     xlab = "", breaks = 40)
+hist(abs(dat_hist_cha$rate.difference[dat_hist_cha$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Charadriiformes", adj = 0)
 
-h_col <- hist(dat_hist_col$rate.difference, breaks = 30, plot = F)
-cuts_col <- cut(h_col$breaks, c(min(dat_hist_col$rate.difference), 0,
-                                max(dat_hist_col$rate.difference)))
-plot(h_col, main = "", xlab = "", ylab = "", col = col_alp[cuts_col], 
-     border = col[cuts_col], xlim = c(-0.79, 0.86))
+hist(dat_hist_col$rate.difference[dat_hist_col$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "", breaks = 40)
+hist(abs(dat_hist_col$rate.difference[dat_hist_col$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Columbiformes", adj = 0)
 
-h_gal <- hist(dat_hist_gal$rate.difference, breaks = 20, plot = F)
-cuts_gal <- cut(h_gal$breaks, c(min(dat_hist_gal$rate.difference), 0,
-                                max(dat_hist_gal$rate.difference)))
-plot(h_gal, main = "", xlab = "", ylab = "", col = col_alp[cuts_gal], 
-     border = col[cuts_gal], xlim = c(-0.79, 0.86))
+hist(dat_hist_gal$rate.difference[dat_hist_gal$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "", breaks = 30, ylim = c(0, 20))
+hist(abs(dat_hist_gal$rate.difference[dat_hist_gal$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Galliformes", adj = 0)
 
-h_pas <- hist(dat_hist_pas$rate.difference, breaks = 10, plot = F)
-cuts_pas <- cut(h_pas$breaks, c(min(dat_hist_pas$rate.difference), 0,
-                                max(dat_hist_pas$rate.difference)))
-plot(h_pas, main = "", xlab = "Rate difference", col = col_alp[cuts_pas], 
-     border = col[cuts_pas], xlim = c(-0.79, 0.86))
+hist(dat_hist_pas$rate.difference[dat_hist_pas$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", 
+     xlab = "Absolute rate difference", breaks = 10)
+hist(abs(dat_hist_pas$rate.difference[dat_hist_pas$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 10)
 title("Passeriformes", adj = 0)
 
-h_pic <- hist(dat_hist_pic$rate.difference, breaks = 20, plot = F)
-cuts_pic <- cut(h_pic$breaks, c(min(dat_hist_pic$rate.difference), 0,
-                                max(dat_hist_pic$rate.difference)))
-plot(h_pic, main = "", xlab = "Rate difference", ylab = "", col = col_alp[cuts_pic], 
-     border = col[cuts_pic], xlim = c(-0.79, 0.86))
+hist(dat_hist_pic$rate.difference[dat_hist_pic$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "Absolute rate difference", breaks = 20, ylim = c(0, 30))
+hist(abs(dat_hist_pic$rate.difference[dat_hist_pic$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Piciformes", adj = 0)
 
-h_psi <- hist(dat_hist_psi$rate.difference, breaks = 30, plot = F)
-cuts_psi <- cut(h_psi$breaks, c(min(dat_hist_psi$rate.difference), 0,
-                                max(dat_hist_psi$rate.difference)))
-plot(h_psi, main = "", xlab = "Rate difference", ylab = "", col = col_alp[cuts_psi], 
-     border = col[cuts_psi], xlim = c(-0.79, 0.86))
+hist(dat_hist_psi$rate.difference[dat_hist_psi$rate.difference > 0], 
+     col = col_alp[2], border = col[2], xlim = c(0, 0.86), main = "", ylab = "",
+     xlab = "Absolute rate difference", breaks = 20, ylim = c(0, 8))
+hist(abs(dat_hist_psi$rate.difference[dat_hist_psi$rate.difference < 0]), 
+     col = col_alp[1], border = col[1], add = T, breaks = 20)
 title("Psittaciformes", adj = 0)
 
 #hist(dat_hist_ave$rate.difference)
@@ -767,29 +769,419 @@ search.shift.birds2 <- function(phy, taxon = NULL) {
 }
 
 RR2_col <- lapply(tr[1:100], search.shift.birds2, "Columbiformes")
-save(RR2_col, file = "data/aves/results/RR2_col.RData")
+#save(RR2_col, file = "data/aves/results/RR2_col.RData")
 
 RR2_psi <- lapply(tr[1:100], search.shift.birds2, "Psittaciformes")
-save(RR2_psi, file = "data/aves/results/RR2_psi.RData")
+#save(RR2_psi, file = "data/aves/results/RR2_psi.RData")
 
 RR2_ans <- lapply(tr[1:100], search.shift.birds2, "Anseriformes")
-save(RR2_ans, file = "data/aves/results/RR2_ans.RData")
+#save(RR2_ans, file = "data/aves/results/RR2_ans.RData")
 
 RR2_acc <- lapply(tr[1:100], search.shift.birds2, "Accipitriformes")
-save(RR2_acc, file = "data/aves/results/RR2_acc.RData")
+#save(RR2_acc, file = "data/aves/results/RR2_acc.RData")
 
 RR2_gal <- lapply(tr[1:100], search.shift.birds2, "Galliformes")
-save(RR2_gal, file = "data/aves/results/RR2_gal.RData")
+#save(RR2_gal, file = "data/aves/results/RR2_gal.RData")
 
 RR2_pic <- lapply(tr[1:100], search.shift.birds2, "Piciformes")
-save(RR2_pic, file = "data/aves/results/RR2_pic.RData")
+#save(RR2_pic, file = "data/aves/results/RR2_pic.RData")
 
 RR2_apo <- lapply(tr[1:100], search.shift.birds2, "Apodiformes")
-save(RR2_apo, file = "data/aves/results/RR2_apo.RData")
+#save(RR2_apo, file = "data/aves/results/RR2_apo.RData")
 
 RR2_cha <- lapply(tr[1:100], search.shift.birds2, "Charadriiformes")
-save(RR2_cha, file = "data/aves/results/RR2_cha.RData")
+#save(RR2_cha, file = "data/aves/results/RR2_cha.RData")
 
 RR2_pas <- lapply(tr[1:100], search.shift.birds2, "Passeriformes")
-save(RR2_pas, file = "data/aves/results/RR2_pas.RData")
+#save(RR2_pas, file = "data/aves/results/RR2_pas.RData")
 
+#load(file = "data/aves/results/RR2_col.RData")
+#load(file = "data/aves/results/RR2_psi.RData")
+#load(file = "data/aves/results/RR2_ans.RData")
+#load(file = "data/aves/results/RR2_acc.RData")
+#load(file = "data/aves/results/RR2_gal.RData")
+#load(file = "data/aves/results/RR2_pic.RData")
+#load(file = "data/aves/results/RR2_apo.RData")
+#load(file = "data/aves/results/RR2_cha.RData")
+#load(file = "data/aves/results/RR2_pas.RData")
+
+RR2_acc_M_p <- RR2_acc_F_p <- RR2_ans_M_p <- RR2_ans_F_p <- RR2_col_M_p <-
+  RR2_col_F_p <- RR2_gal_M_p <- RR2_gal_F_p <- numeric()
+
+RR2_apo_M_p <- RR2_apo_F_p <- RR2_cha_M_p <- RR2_cha_F_p <- RR2_pas_M_p <- 
+  RR2_pas_F_p <- RR2_pic_M_p <- RR2_pic_F_p <- RR2_psi_M_p <- RR2_psi_F_p <- 
+  matrix(nrow = 100, ncol = 6)
+
+colnames(RR2_apo_M_p) <- colnames(RR2_apo_F_p) <- colnames(RR2_cha_M_p) <- 
+  colnames(RR2_cha_F_p) <- colnames(RR2_pas_M_p) <- colnames(RR2_pas_F_p) <- 
+  colnames(RR2_pic_M_p) <- colnames(RR2_pic_F_p) <- colnames(RR2_psi_M_p) <- 
+  colnames(RR2_psi_F_p) <- rownames(RR2_apo[[1]]$shift_male$state.results)
+for (i in 1:100) {
+  RR2_acc_M_p[i] <- RR2_acc[[i]]$shift_male$state.results[[2]]
+  RR2_acc_F_p[i] <- RR2_acc[[i]]$shift_female$state.results[[2]]
+  
+  RR2_ans_M_p[i] <- RR2_ans[[i]]$shift_male$state.results[[2]]
+  RR2_ans_F_p[i] <- RR2_ans[[i]]$shift_female$state.results[[2]]
+  
+  RR2_apo_M_p[i, ] <- RR2_apo[[i]]$shift_male$state.results[[2]]
+  RR2_apo_F_p[i, ] <- RR2_apo[[i]]$shift_female$state.results[[2]]
+
+  RR2_cha_M_p[i, ] <- RR2_cha[[i]]$shift_male$state.results[[2]]
+  RR2_cha_F_p[i, ] <- RR2_cha[[i]]$shift_female$state.results[[2]]
+
+  RR2_col_M_p[i] <- RR2_col[[i]]$shift_male$state.results[[2]]
+  RR2_col_F_p[i] <- RR2_col[[i]]$shift_female$state.results[[2]]
+  
+  RR2_gal_M_p[i] <- RR2_gal[[i]]$shift_male$state.results[[2]]
+  RR2_gal_F_p[i] <- RR2_gal[[i]]$shift_female$state.results[[2]]
+
+  RR2_pas_M_p[i, ] <- RR2_pas[[i]]$shift_male$state.results[[2]]
+  RR2_pas_F_p[i, ] <- RR2_pas[[i]]$shift_female$state.results[[2]]
+
+  RR2_pic_M_p[i, ] <- RR2_pic[[i]]$shift_male$state.results[[2]]
+  RR2_pic_F_p[i, ] <- RR2_pic[[i]]$shift_female$state.results[[2]]
+
+  RR2_psi_M_p[i, ] <- RR2_psi[[i]]$shift_male$state.results[[2]]
+  RR2_psi_F_p[i, ] <- RR2_psi[[i]]$shift_female$state.results[[2]]
+}
+
+res_RR2 <- matrix(nrow = 9, ncol = 12)
+rownames(res_RR2) <- c("Accipitriformes", "Anseriformes", "Apodiformes", 
+                       "Charadriiformes", "Columbiformes", "Galliformes", 
+                       "Passeriformes", "Piciformes", "Psittaciformes")
+colnames(res_RR2) <- c(paste0("M_", rownames(RR2_apo[[1]]$shift_male$state.results)),
+                       paste0("F_", rownames(RR2_apo[[1]]$shift_female$state.results)))
+
+res_RR2[1, 1] <- summ(RR2_acc_M_p)
+res_RR2[1, 7] <- summ(RR2_acc_F_p)
+
+res_RR2[2, 1] <- summ(RR2_ans_M_p)
+res_RR2[2, 7] <- summ(RR2_ans_F_p)
+
+res_RR2[3, 1:6] <- c(summ(RR2_apo_M_p[, 1]), summ(RR2_apo_M_p[, 2]), 
+                     summ(RR2_apo_M_p[, 3]), summ(RR2_apo_M_p[, 4]), 
+                     summ(RR2_apo_M_p[, 5]), summ(RR2_apo_M_p[, 6]))
+res_RR2[3, 7:12] <- c(summ(RR2_apo_F_p[, 1]), summ(RR2_apo_F_p[, 2]), 
+                     summ(RR2_apo_F_p[, 3]), summ(RR2_apo_F_p[, 4]), 
+                     summ(RR2_apo_F_p[, 5]), summ(RR2_apo_F_p[, 6]))
+
+res_RR2[4, 1:6] <- c(summ(RR2_cha_M_p[, 1]), summ(RR2_cha_M_p[, 2]), 
+                     summ(RR2_cha_M_p[, 3]), summ(RR2_cha_M_p[, 4]), 
+                     summ(RR2_cha_M_p[, 5]), summ(RR2_cha_M_p[, 6]))
+res_RR2[4, 7:12] <- c(summ(RR2_cha_F_p[, 1]), summ(RR2_cha_F_p[, 2]), 
+                      summ(RR2_cha_F_p[, 3]), summ(RR2_cha_F_p[, 4]), 
+                      summ(RR2_cha_F_p[, 5]), summ(RR2_cha_F_p[, 6]))
+
+res_RR2[5, 1] <- summ(RR2_col_M_p)
+res_RR2[5, 7] <- summ(RR2_col_F_p)
+
+res_RR2[6, 1] <- summ(RR2_gal_M_p)
+res_RR2[6, 7] <- summ(RR2_gal_F_p)
+                      
+res_RR2[7, 1:6] <- c(summ(RR2_pas_M_p[, 1]), summ(RR2_pas_M_p[, 2]), 
+                     summ(RR2_pas_M_p[, 3]), summ(RR2_pas_M_p[, 4]), 
+                     summ(RR2_pas_M_p[, 5]), summ(RR2_pas_M_p[, 6]))
+res_RR2[7, 7:12] <- c(summ(RR2_pas_F_p[, 1]), summ(RR2_pas_F_p[, 2]), 
+                      summ(RR2_pas_F_p[, 3]), summ(RR2_pas_F_p[, 4]), 
+                      summ(RR2_pas_F_p[, 5]), summ(RR2_pas_F_p[, 6]))           
+  
+res_RR2[8, 1:6] <- c(summ(RR2_pic_M_p[, 1]), summ(RR2_pic_M_p[, 2]), 
+                     summ(RR2_pic_M_p[, 3]), summ(RR2_pic_M_p[, 4]), 
+                     summ(RR2_pic_M_p[, 5]), summ(RR2_pic_M_p[, 6]))
+res_RR2[8, 7:12] <- c(summ(RR2_pic_F_p[, 1]), summ(RR2_pic_F_p[, 2]), 
+                      summ(RR2_pic_F_p[, 3]), summ(RR2_pic_F_p[, 4]), 
+                      summ(RR2_pic_F_p[, 5]), summ(RR2_pic_F_p[, 6]))  
+
+res_RR2[9, 1:6] <- c(summ(RR2_psi_M_p[, 1]), summ(RR2_psi_M_p[, 2]), 
+                     summ(RR2_psi_M_p[, 3]), summ(RR2_psi_M_p[, 4]), 
+                     summ(RR2_psi_M_p[, 5]), summ(RR2_psi_M_p[, 6]))
+res_RR2[9, 7:12] <- c(summ(RR2_psi_F_p[, 1]), summ(RR2_psi_F_p[, 2]), 
+                      summ(RR2_psi_F_p[, 3]), summ(RR2_psi_F_p[, 4]), 
+                      summ(RR2_psi_F_p[, 5]), summ(RR2_psi_F_p[, 6]))
+
+write.csv(res_RR2, "tables/Table3_unformatted.csv")
+
+acc_F_fem <- acc_F_mal <- acc_M_fem <- acc_M_mal <- list()
+ans_F_fem <- ans_F_mal <- ans_M_fem <- ans_M_mal <- list()
+apo_F_fem <- apo_F_mal <- apo_F_mon <- apo_M_fem <- apo_M_mal <- apo_M_mon <- list()
+cha_F_fem <- cha_F_mal <- cha_F_mon <- cha_M_fem <- cha_M_mal <- cha_M_mon <- list()
+col_F_fem <- col_F_mal <- col_M_fem <- col_M_mal <- list()
+gal_F_fem <- gal_F_mal <- gal_M_fem <- gal_M_mal <- list()
+pas_F_fem <- pas_F_mal <- pas_F_mon <- pas_M_fem <- pas_M_mal <- pas_M_mon <- list()
+pic_F_fem <- pic_F_mal <- pic_F_mon <- pic_M_fem <- pic_M_mal <- pic_M_mon <- list()
+psi_F_fem <- psi_F_mal <- psi_F_mon <- psi_M_fem <- psi_M_mal <- psi_M_mon <- list()
+for (i in 1:100) {
+  acc_M_mal[[i]] <- RR2_acc[[i]]$shift_male$rates[rownames(RR2_acc[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  acc_M_fem[[i]] <- RR2_acc[[i]]$shift_male$rates[rownames(RR2_acc[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  acc_F_mal[[i]] <- RR2_acc[[i]]$shift_female$rates[rownames(RR2_acc[[i]]$shift_female$rates) %in%
+                                                  names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  acc_F_fem[[i]] <- RR2_acc[[i]]$shift_female$rates[rownames(RR2_acc[[i]]$shift_female$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+
+  ans_M_mal[[i]] <- RR2_ans[[i]]$shift_male$rates[rownames(RR2_ans[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  ans_M_fem[[i]] <- RR2_ans[[i]]$shift_male$rates[rownames(RR2_ans[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  ans_F_mal[[i]] <- RR2_ans[[i]]$shift_female$rates[rownames(RR2_ans[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  ans_F_fem[[i]] <- RR2_ans[[i]]$shift_female$rates[rownames(RR2_ans[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+ 
+  apo_M_mal[[i]] <- RR2_apo[[i]]$shift_male$rates[rownames(RR2_apo[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  apo_M_fem[[i]] <- RR2_apo[[i]]$shift_male$rates[rownames(RR2_apo[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  apo_M_mon[[i]] <- RR2_apo[[i]]$shift_male$rates[rownames(RR2_apo[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+  apo_F_mal[[i]] <- RR2_apo[[i]]$shift_female$rates[rownames(RR2_apo[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  apo_F_fem[[i]] <- RR2_apo[[i]]$shift_female$rates[rownames(RR2_apo[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  apo_F_mon[[i]] <- RR2_apo[[i]]$shift_female$rates[rownames(RR2_apo[[i]]$shift_female$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+
+  cha_M_mal[[i]] <- RR2_cha[[i]]$shift_male$rates[rownames(RR2_cha[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  cha_M_fem[[i]] <- RR2_cha[[i]]$shift_male$rates[rownames(RR2_cha[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  cha_M_mon[[i]] <- RR2_cha[[i]]$shift_male$rates[rownames(RR2_cha[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+  cha_F_mal[[i]] <- RR2_cha[[i]]$shift_female$rates[rownames(RR2_cha[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  cha_F_fem[[i]] <- RR2_cha[[i]]$shift_female$rates[rownames(RR2_cha[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  cha_F_mon[[i]] <- RR2_cha[[i]]$shift_female$rates[rownames(RR2_cha[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Monomorphism"]]
+
+  col_M_mal[[i]] <- RR2_col[[i]]$shift_male$rates[rownames(RR2_col[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  col_M_fem[[i]] <- RR2_col[[i]]$shift_male$rates[rownames(RR2_col[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  col_F_mal[[i]] <- RR2_col[[i]]$shift_female$rates[rownames(RR2_col[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  col_F_fem[[i]] <- RR2_col[[i]]$shift_female$rates[rownames(RR2_col[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+
+  gal_M_mal[[i]] <- RR2_gal[[i]]$shift_male$rates[rownames(RR2_gal[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  gal_M_fem[[i]] <- RR2_gal[[i]]$shift_male$rates[rownames(RR2_gal[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  gal_F_mal[[i]] <- RR2_gal[[i]]$shift_female$rates[rownames(RR2_gal[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  gal_F_fem[[i]] <- RR2_gal[[i]]$shift_female$rates[rownames(RR2_gal[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+
+  pas_M_mal[[i]] <- RR2_pas[[i]]$shift_male$rates[rownames(RR2_pas[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  pas_M_fem[[i]] <- RR2_pas[[i]]$shift_male$rates[rownames(RR2_pas[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  pas_M_mon[[i]] <- RR2_pas[[i]]$shift_male$rates[rownames(RR2_pas[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+  pas_F_mal[[i]] <- RR2_pas[[i]]$shift_female$rates[rownames(RR2_pas[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  pas_F_fem[[i]] <- RR2_pas[[i]]$shift_female$rates[rownames(RR2_pas[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  pas_F_mon[[i]] <- RR2_pas[[i]]$shift_female$rates[rownames(RR2_pas[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Monomorphism"]]
+
+  pic_M_mal[[i]] <- RR2_pic[[i]]$shift_male$rates[rownames(RR2_pic[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  pic_M_fem[[i]] <- RR2_pic[[i]]$shift_male$rates[rownames(RR2_pic[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  pic_M_mon[[i]] <- RR2_pic[[i]]$shift_male$rates[rownames(RR2_pic[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+  pic_F_mal[[i]] <- RR2_pic[[i]]$shift_female$rates[rownames(RR2_pic[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  pic_F_fem[[i]] <- RR2_pic[[i]]$shift_female$rates[rownames(RR2_pic[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  pic_F_mon[[i]] <- RR2_pic[[i]]$shift_female$rates[rownames(RR2_pic[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Monomorphism"]]
+
+  psi_M_mal[[i]] <- RR2_psi[[i]]$shift_male$rates[rownames(RR2_psi[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  psi_M_fem[[i]] <- RR2_psi[[i]]$shift_male$rates[rownames(RR2_psi[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  psi_M_mon[[i]] <- RR2_psi[[i]]$shift_male$rates[rownames(RR2_psi[[i]]$shift_male$rates) %in%
+                                                    names(sdi_disc)[sdi_disc == "Monomorphism"]]
+  psi_F_mal[[i]] <- RR2_psi[[i]]$shift_female$rates[rownames(RR2_psi[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Male-biased SSD"]]
+  psi_F_fem[[i]] <- RR2_psi[[i]]$shift_female$rates[rownames(RR2_psi[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Female-biased SSD"]]
+  psi_F_mon[[i]] <- RR2_psi[[i]]$shift_female$rates[rownames(RR2_psi[[i]]$shift_female$rates) %in%
+                                                      names(sdi_disc)[sdi_disc == "Monomorphism"]]
+}
+acc_M_mal <- do.call(c, acc_M_mal)
+acc_M_fem <- do.call(c, acc_M_fem)
+acc_F_mal <- do.call(c, acc_F_mal)
+acc_F_fem <- do.call(c, acc_F_fem)
+
+ans_M_mal <- do.call(c, ans_M_mal)
+ans_M_fem <- do.call(c, ans_M_fem)
+ans_F_mal <- do.call(c, ans_F_mal)
+ans_F_fem <- do.call(c, ans_F_fem)
+
+apo_M_mal <- do.call(c, apo_M_mal)
+apo_M_fem <- do.call(c, apo_M_fem)
+apo_M_mon <- do.call(c, apo_M_mon)
+apo_F_mal <- do.call(c, apo_F_mal)
+apo_F_fem <- do.call(c, apo_F_fem)
+apo_F_mon <- do.call(c, apo_F_mon)
+
+cha_M_mal <- do.call(c, cha_M_mal)
+cha_M_fem <- do.call(c, cha_M_fem)
+cha_M_mon <- do.call(c, cha_M_mon)
+cha_F_mal <- do.call(c, cha_F_mal)
+cha_F_fem <- do.call(c, cha_F_fem)
+cha_F_mon <- do.call(c, cha_F_mon)
+
+col_M_mal <- do.call(c, col_M_mal)
+col_M_fem <- do.call(c, col_M_fem)
+col_F_mal <- do.call(c, col_F_mal)
+col_F_fem <- do.call(c, col_F_fem)
+
+gal_M_mal <- do.call(c, gal_M_mal)
+gal_M_fem <- do.call(c, gal_M_fem)
+gal_F_mal <- do.call(c, gal_F_mal)
+gal_F_fem <- do.call(c, gal_F_fem)
+
+pas_M_mal <- do.call(c, pas_M_mal)
+pas_M_fem <- do.call(c, pas_M_fem)
+pas_M_mon <- do.call(c, pas_M_mon)
+pas_F_mal <- do.call(c, pas_F_mal)
+pas_F_fem <- do.call(c, pas_F_fem)
+pas_F_mon <- do.call(c, pas_F_mon)
+
+pic_M_mal <- do.call(c, pic_M_mal)
+pic_M_fem <- do.call(c, pic_M_fem)
+pic_M_mon <- do.call(c, pic_M_mon)
+pic_F_mal <- do.call(c, pic_F_mal)
+pic_F_fem <- do.call(c, pic_F_fem)
+pic_F_mon <- do.call(c, pic_F_mon)
+
+psi_M_mal <- do.call(c, psi_M_mal)
+psi_M_fem <- do.call(c, psi_M_fem)
+psi_M_mon <- do.call(c, psi_M_mon)
+psi_F_mal <- do.call(c, psi_F_mal)
+psi_F_fem <- do.call(c, psi_F_fem)
+psi_F_mon <- do.call(c, psi_F_mon)
+
+## Figure 8
+pdf("figures/FigureS1.pdf", height = 9, width = 9)
+
+layout(matrix(1:9, ncol = 3, byrow = TRUE))
+
+male <- "#9966FF"
+monom <- "gray"
+female <- "#E69F00"
+
+plot(density(abs(acc_M_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 1))
+lines(density(abs(acc_M_mal)), col = male)
+title("Accipitriformes", adj = 0)
+
+plot(density(abs(ans_M_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.5))
+lines(density(abs(ans_M_mal)), col = male)
+title("Anseriformes", adj = 0)
+
+plot(density(abs(apo_M_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.6))
+lines(density(abs(apo_M_mal)), col = male)
+lines(density(abs(apo_M_mon)), col = monom)
+title("Apodiformes", adj = 0)
+
+plot(density(abs(cha_M_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 0.6))
+lines(density(abs(cha_M_mal)), col = male)
+lines(density(abs(cha_M_mon)), col = monom)
+title("Charadriiformes", adj = 0)
+
+plot(density(abs(col_M_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 1))
+lines(density(abs(col_M_mal)), col = male)
+title("Columbiformes", adj = 0)
+
+plot(density(abs(gal_M_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.8))
+lines(density(abs(gal_M_mal)), col = male)
+title("Galliformes", adj = 0)
+
+plot(density(abs(pas_M_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 0.7))
+lines(density(abs(pas_M_mal)), col = male)
+lines(density(abs(pas_M_mon)), col = monom)
+title("Passeriformes", adj = 0)
+
+plot(density(abs(pic_M_fem)), type = "l", main = "", ylab = "", col = female,
+     xlab = "Absolute male body mass rate residuals", ylim = c(0, 0.6))
+lines(density(abs(pic_M_mal)), col = male)
+lines(density(abs(pic_M_mon)), col = monom)
+title("Piciformes", adj = 0)
+
+plot(density(abs(psi_M_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.6))
+lines(density(abs(psi_M_mal)), col = male)
+lines(density(abs(psi_M_mon)), col = monom)
+title("Psittaciformes", adj = 0)
+
+dev.off()
+
+## Figure 9 
+
+pdf("figures/FigureS2.pdf", height = 9, width = 9)
+
+layout(matrix(1:9, ncol = 3, byrow = TRUE))
+
+plot(density(abs(acc_F_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 1.5))
+lines(density(abs(acc_F_mal)), col = male)
+title("Accipitriformes", adj = 0)
+title("*", adj = 1, cex = 2)
+plot(density(abs(ans_F_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.5))
+lines(density(abs(ans_F_mal)), col = male)
+title("Anseriformes", adj = 0)
+
+plot(density(abs(apo_F_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.7))
+lines(density(abs(apo_F_mal)), col = male)
+lines(density(abs(apo_F_mon)), col = monom)
+title("Apodiformes", adj = 0)
+
+plot(density(abs(cha_F_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 0.6))
+lines(density(abs(cha_F_mal)), col = male)
+lines(density(abs(cha_F_mon)), col = monom)
+title("Charadriiformes", adj = 0)
+
+plot(density(abs(col_F_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 1))
+lines(density(abs(col_F_mal)), col = male)
+title("Columbiformes", adj = 0)
+
+plot(density(abs(gal_F_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.8))
+lines(density(abs(gal_F_mal)), col = male)
+title("Galliformes", adj = 0)
+
+plot(density(abs(pas_F_fem)), type = "l", main = "", xlab = "", 
+     ylab = "Density", col = female, ylim = c(0, 0.7))
+lines(density(abs(pas_F_mal)), col = male)
+lines(density(abs(pas_F_mon)), col = monom)
+title("Passeriformes", adj = 0)
+
+plot(density(abs(pic_F_fem)), type = "l", main = "", ylab = "", col = female,
+     xlab = "Absolute female body mass rate residuals", ylim = c(0, 0.6))
+lines(density(abs(pic_F_mal)), col = male)
+lines(density(abs(pic_F_mon)), col = monom)
+title("Piciformes", adj = 0)
+
+plot(density(abs(psi_F_fem)), type = "l", main = "", xlab = "", ylab = "", 
+     col = female, ylim = c(0, 0.7))
+lines(density(abs(psi_F_mal)), col = male)
+lines(density(abs(psi_F_mon)), col = monom)
+title("Psittaciformes", adj = 0)
+
+dev.off()
