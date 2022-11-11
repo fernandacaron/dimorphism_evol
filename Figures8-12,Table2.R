@@ -9,7 +9,7 @@ library(raster)
 library(dplyr)
 library(fasterize)
 library(viridis)
-#library(rgeos)
+library(rgeos)
 
 dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
 
@@ -177,6 +177,127 @@ getVarCells <- function(maps, sdi, res = 2.5) {
   return(res)
   
 }
+
+getVarSpp <- function(maps, sdi, taxon, env, npp) {
+  
+  r <- raster(ncols = 8640, nrows = 3600, ymn = -60, vals = 1:(8640*3600))
+
+  env_vals <- env
+  npp_vals <- npp
+  
+  for(i in 1:length(unique(maps$sci_name))) try({
+    
+    print(paste0(i, "/", length(unique(maps$sci_name))))
+
+    species_i <- unique(maps$sci_name)[i]
+  
+    maps_i <- maps %>% filter(sci_name == species_i)
+  
+    for (j in 1:length(maps_i$Shape)) { 
+      try(maps_i$Shape[j] <- st_make_valid(maps_i$Shape[j]))
+      try(maps_i$Shape[[j]] <- st_cast(maps_i$Shape[[j]], 'MULTIPOLYGON'))
+    }
+    try(maps_i$Shape <- st_cast(maps_i$Shape, 'MULTIPOLYGON'))
+  
+    raster_i <- fasterize(st_as_sf(maps_i$Shape), r) 
+
+    lat <- gCentroid(as(maps_i$Shape, "Spatial"))@coords[2]
+    
+    rastercells <- which(getValues(raster_i) > 0)
+  
+    values_env <- env_vals[rastercells, ]
+    values_npp <- npp_vals[rastercells]
+    
+    if(nrow(values_env) == 1) {
+      ifelse(is.na(values_env[1]), 
+             bio4 <- NA, 
+             bio4 <- values_env[1])
+      ifelse(is.na(values_env[2]), 
+             bio15 <- NA, 
+             bio15 <- values_env[2])
+    } else { 
+      ifelse(all(is.na(values_env[, 1])),
+             bio4 <- NA,
+             bio4 <- mean(values_env[, 1], na.rm = TRUE))
+      ifelse(all(is.na(values_env[, 2])), 
+             bio15 <- NA,
+             bio15 <- mean(values_env[, 2], na.rm = TRUE))
+    }
+  
+    if(length(values_npp) == 1) {
+      ifelse(is.na(values_npp[1]), 
+             npp <- NA, 
+             npp <- values_npp[1])
+    } else { 
+      ifelse(all(is.na(values_npp)),
+             npp <- NA,
+             npp <- mean(values_npp, na.rm = TRUE))
+    }
+  
+    study_results <- data.frame(species = maps_i$sci_name[1],
+                                sdi[names(sdi) == species_i][[1]],
+                                lat,
+                                bio4,
+                                bio15,
+                                npp)
+  
+    write.table(study_results, paste0("data/aves/data_env_per_spp_", taxon, ".csv"),
+                sep = ",", col.names = FALSE, append = TRUE, row.names = F)
+  })
+  
+  res <- read.csv(paste0("data/aves/data_env_per_spp_", taxon, ".csv"),
+                  row.names = 1, header = F)
+  colnames(res) <- c("SDI", "Latitude", "bio4", "bio15", "NPP")
+  write.csv(res, paste0("data/aves/data_env_per_spp_", taxon, ".csv"))
+  return(res)
+}
+
+envar <- getData("worldclim", var = "bio", res = 2.5)
+envars <- stack(envar[[4]], envar[[15]])
+
+npp <- raster("data/npp-geotiff/npp_geotiff.tif")
+
+files <- list.files(path = "data/npp_Wang&al2021/NPP1981", pattern = '.tif$', 
+                    all.files = TRUE, full.names = TRUE)
+for (i in 1:length(files)) {
+  ras <- raster(files[i])
+  if (i == 1) {
+    raster_stack <- ras
+  } else {
+    raster_stack <- addLayer(raster_stack, ras)
+  }
+}
+
+av_full <- stackApply(raster_stack, indices = rep(1, length(sdi)), 
+                      fun = median, na.rm = T) 
+
+npp <- stack(list.files(path = "data/npp_Wang&al2021/NPP1981", 
+                        pattern = '.tif$', all.files = TRUE, full.names = TRUE))
+save(npp, file = "data/npp_Wang&al2021/test.RData")
+
+r <- raster(ncols = 8640, nrows = 3600, ymn = -60, vals = 1:(8640*3600))
+
+env_vals <- raster::extract(envars, r[])
+npp_vals <- raster::extract(npp, r[])
+
+env_acc <- getVarSpp(maps_acc, sdi_acc, "Accipitriformes", env = env_vals, 
+                     npp = npp_vals)
+env_ans <- getVarSpp(maps_ans, sdi_ans, "Anseriformes", env = env_vals, 
+                     npp = npp_vals)
+env_apo <- getVarSpp(maps_apo, sdi_apo, "Apodiformes", env = env_vals, 
+                     npp = npp_vals)
+env_cha <- getVarSpp(maps_cha, sdi_cha, "Charadriiformes", env = env_vals, 
+                     npp = npp_vals)
+env_col <- getVarSpp(maps_col, sdi_col, "Columbiformes", env = env_vals, 
+                     npp = npp_vals)
+env_gal <- getVarSpp(maps_gal, sdi_gal, "Galliformes", env = env_vals, 
+                     npp = npp_vals)
+#env_pas <- getVarSpp(maps_pas, sdi_pas, "Passeriformes", env = env_vals, 
+#                     npp = npp_vals)
+env_pic <- getVarSpp(maps_pic, sdi_pic, "Piciformes", env = env_vals, 
+                     npp = npp_vals)
+env_psi <- getVarSpp(maps_psi, sdi_psi, "Psittaciformes", env = env_vals, 
+                     npp = npp_vals)
 
 var_acc <- getVarCells(maps_acc, sdi_acc)
 var_ans <- getVarCells(maps_ans, sdi_ans)
