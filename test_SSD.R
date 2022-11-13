@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("Documents/Lab/dimorph_evol")
+setwd("Documents/lab/dimorph_evol")
 
 library(phytools)
 library(stringi)
@@ -14,7 +14,7 @@ library(viridis)
 # Histograms difference across sources
 ####################################
 # Ocampo et al. 2021
-ref1 <- read.csv("data/aves/Ocampo&al2020_DataS1_BodyMass.csv")
+ref1 <- read.csv("data/Ocampo&al2020_DataSπ1_BodyMass.csv")
 males1 <- ref1$Average.weight..gr...Male.[
   complete.cases(ref1$Average.weight..gr...Male.)]
 names(males1) <- ref1$Species[complete.cases(ref1$Average.weight..gr...Male.)]
@@ -23,7 +23,7 @@ females1 <- ref1$Average.weight..gr...Female.[
 names(females1) <- ref1$Species[complete.cases(ref1$Average.weight..gr...Female.)]
 
 # Lislevand et al. 2007
-ref2 <- read.csv("data/aves/Lislevand2007_30may22.csv") 
+ref2 <- read.csv("data/Lislevand2007_30may22.csv") 
 ref2$Species_name <- stri_replace_all_fixed(ref2$Species_name, " ", "_")
 ref2$M_mass[ref2$M_mass == -999] <- NA
 ref2$F_mass[ref2$F_mass == -999] <- NA
@@ -33,7 +33,7 @@ females2 <- ref2$F_mass[complete.cases(ref2$F_mass)]
 names(females2) <- ref2$Species_name[complete.cases(ref2$F_mass)]
 
 # Myhrvold et al. 2015 (Amniote Database)
-ref3 <- read.csv("data/aves/AmnioteDatabase2015_02set2021.csv") 
+ref3 <- read.csv("data/AmnioteDatabase2015_02set2021.csv") 
 ref3["Species"] <- NA
 for (i in 1:nrow(ref3)) {
   ref3$Species[i] <- paste0(ref3$genus[i], "_", ref3$species[i])
@@ -137,14 +137,14 @@ names23 <- unique(names23)
 all_names <- c(names12, names13, names23)
 all_names <- unique(all_names)
 
-dat_nosso <- read.csv("data/aves/BodySizeAves_30may22.csv", row.names = 1)
+dat_nosso <- read.csv("data/BodySizeAves_30may22.csv", row.names = 1)
 
 dat_nosso <- dat_nosso[complete.cases(dat_nosso$Body_mass_g_M_mean) & 
                        complete.cases(dat_nosso$Body_mass_g_F_mean), ]
 
 dat_nosso <- dat_nosso[!(dat_nosso$Scientific_name %in% all_names), ]
 
-write.csv(dat_nosso, "data/aves/BodySizeAves_30may22_edit.csv")
+write.csv(dat_nosso, "data/BodySizeAves_30may22_edit.csv")
 
 sdi_nosso1 <- log10(dat_nosso$Body_mass_g_M_mean/dat_nosso$Body_mass_g_F_mean)
 names(sdi_nosso1) <- dat_nosso$Scientific_name
@@ -201,7 +201,7 @@ range(sdi_nosso_stand) # -5.660937 11.351459
 # Eles não tem código pq usaram o SAM
 
 # Dados apenas de Lislevand et al. 2007
-dat2 <- read.csv("data/aves/Lislevand2007_30may22.csv") 
+dat2 <- read.csv("data/Lislevand2007_30may22.csv") 
 dat2$Species_name <- stri_replace_all_fixed(dat2$Species_name, " ", "_")
 dat2$M_mass[dat2$M_mass == -999] <- NA
 dat2$F_mass[dat2$F_mass == -999] <- NA
@@ -272,13 +272,13 @@ map.SSD <- function(data, func = mean, cols = NULL, figFolder, fileName) {
   # de Tobias et al. (2022)
   
   # Behrmann equal area (96 x 96km) grid shapefile
-  grid <- rgdal::readOGR("data/aves/spatial/BehrmannMeterGrid_WGS84_land.shp")
+  grid <- rgdal::readOGR("data/spatial/BehrmannMeterGrid_WGS84_land.shp")
   
   # Country borders shapefile
-  countriesGeo <- rgdal::readOGR("data/aves/spatial/all_countries.shp")
+  countriesGeo <- rgdal::readOGR("data/spatial/all_countries.shp")
   
   # gridded species geographic range data - Birdlife taxonomy 
-  rangeData <- read.csv("data/aves/spatial/AllSpeciesBirdLifeMaps2019.csv")
+  rangeData <- read.csv("data/spatial/AllSpeciesBirdLifeMaps2019.csv")
 
   rangeData$Species <- stri_replace_all_fixed(rangeData$Species, " ", "_")
 
@@ -414,7 +414,7 @@ map.SSD(sdi_nosso1, cols = c(viridis(100), "orange")[101:1],
 # Eles não tem código pq usaram o SAM
 
 # Dados apenas de Lislevand et al. 2007
-dat2 <- read.csv("data/aves/Lislevand2007_19aug21.csv") 
+dat2 <- read.csv("data/Lislevand2007_19aug21.csv") 
 dat2$Species_name <- stri_replace_all_fixed(dat2$Species_name, " ", "_")
 dat2$M_mass[dat2$M_mass == -999] <- NA
 dat2$F_mass[dat2$F_mass == -999] <- NA

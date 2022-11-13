@@ -11,7 +11,7 @@ library(fasterize)
 library(viridis)
 library(rgeos)
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
                  complete.cases(dat$Body_mass_g_F_mean), ]
@@ -55,15 +55,15 @@ for (i in 1:nrow(dat_red)) {
 names(sdi) <- dat_red$Scientific_name
 sdi <- sdi[complete.cases(sdi)]
 
-load(file = "data/aves/spatial/acc.RData")
-load(file = "data/aves/spatial/ans.RData")
-load(file = "data/aves/spatial/apo.RData")
-load(file = "data/aves/spatial/cha.RData")
-load(file = "data/aves/spatial/col.RData")
-load(file = "data/aves/spatial/gal.RData")
-#load(file = "data/aves/spatial/pas.RData")
-load(file = "data/aves/spatial/pic.RData")
-load(file = "data/aves/spatial/psi.RData")
+load(file = "data/spatial/acc.RData")
+load(file = "data/spatial/ans.RData")
+load(file = "data/spatial/apo.RData")
+load(file = "data/spatial/cha.RData")
+load(file = "data/spatial/col.RData")
+load(file = "data/spatial/gal.RData")
+#load(file = "data/spatial/pas.RData")
+load(file = "data/spatial/pic.RData")
+load(file = "data/spatial/psi.RData")
 
 sdi_acc <- sdi[names(sdi) %in% acc$sci_name]
 sdi_ans <- sdi[names(sdi) %in% ans$sci_name]
@@ -241,14 +241,14 @@ getVarSpp <- function(maps, sdi, taxon, env, npp) {
                                 bio15,
                                 npp)
   
-    write.table(study_results, paste0("data/aves/data_env_per_spp_", taxon, ".csv"),
+    write.table(study_results, paste0("data/data_env_per_spp_", taxon, ".csv"),
                 sep = ",", col.names = FALSE, append = TRUE, row.names = F)
   })
   
-  res <- read.csv(paste0("data/aves/data_env_per_spp_", taxon, ".csv"),
+  res <- read.csv(paste0("data/data_env_per_spp_", taxon, ".csv"),
                   row.names = 1, header = F)
   colnames(res) <- c("SDI", "Latitude", "bio4", "bio15", "NPP")
-  write.csv(res, paste0("data/aves/data_env_per_spp_", taxon, ".csv"))
+  write.csv(res, paste0("data/data_env_per_spp_", taxon, ".csv"))
   return(res)
 }
 
@@ -309,25 +309,25 @@ var_gal <- getVarCells(maps_gal, sdi_gal)
 var_pic <- getVarCells(maps_pic, sdi_pic)
 var_psi <- getVarCells(maps_psi, sdi_psi)
 
-#save(var_acc, file = "data/aves/var_acc.RData")
-#save(var_ans, file = "data/aves/var_ans.RData")
-#save(var_apo, file = "data/aves/var_apo.RData")
-#save(var_cha, file = "data/aves/var_cha.RData")
-#save(var_col, file = "data/aves/var_col.RData")
-#save(var_gal, file = "data/aves/var_gal.RData")
-#save(var_pas, file = "data/aves/var_pas.RData")
-#save(var_pic, file = "data/aves/var_pic.RData")
-#save(var_psi, file = "data/aves/var_psi.RData")
+#save(var_acc, file = "data/var_acc.RData")
+#save(var_ans, file = "data/var_ans.RData")
+#save(var_apo, file = "data/var_apo.RData")
+#save(var_cha, file = "data/var_cha.RData")
+#save(var_col, file = "data/var_col.RData")
+#save(var_gal, file = "data/var_gal.RData")
+#save(var_pas, file = "data/var_pas.RData")
+#save(var_pic, file = "data/var_pic.RData")
+#save(var_psi, file = "data/var_psi.RData")
 
-#load(file = "data/aves/var_acc.RData")
-#load(file = "data/aves/var_ans.RData")
-#load(file = "data/aves/var_apo.RData")
-#load(file = "data/aves/var_cha.RData")
-#load(file = "data/aves/var_col.RData")
-#load(file = "data/aves/var_gal.RData")
-#load(file = "data/aves/var_pas.RData")
-#load(file = "data/aves/var_pic.RData")
-#load(file = "data/aves/var_psi.RData")
+#load(file = "data/var_acc.RData")
+#load(file = "data/var_ans.RData")
+#load(file = "data/var_apo.RData")
+#load(file = "data/var_cha.RData")
+#load(file = "data/var_col.RData")
+#load(file = "data/var_gal.RData")
+#load(file = "data/var_pas.RData")
+#load(file = "data/var_pic.RData")
+#load(file = "data/var_psi.RData")
 
 pdf("figures/Figure8.pdf", width = 8)
 

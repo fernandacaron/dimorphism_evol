@@ -9,8 +9,8 @@ library(AICcmodavg)
 
 ########## MK + DR ##########
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
+tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
 tr <- tr[1:100]
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -99,41 +99,41 @@ fitMK <- function(phy, sdi, data, taxon) {
 # Análises feitas no cluster da UFG
 
 fitMK_col <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Columbiformes")
-#save(fitMK_col, file = "data/aves/results/fitMK_col.RData")
+#save(fitMK_col, file = "data/results/fitMK_col.RData")
 
 fitMK_psi <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Psittaciformes")
-#save(fitMK_psi, file = "data/aves/results/fitMK_psi.RData")
+#save(fitMK_psi, file = "data/results/fitMK_psi.RData")
 
 fitMK_ans <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Anseriformes")
-#save(fitMK_ans, file = "data/aves/results/fitMK_ans.RData")
+#save(fitMK_ans, file = "data/results/fitMK_ans.RData")
 
 fitMK_acc <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Accipitriformes")
-#save(fitMK_acc, file = "data/aves/results/fitMK_acc.RData")
+#save(fitMK_acc, file = "data/results/fitMK_acc.RData")
 
 fitMK_gal <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Galliformes")
-#save(fitMK_gal, file = "data/aves/results/fitMK_gal.RData")
+#save(fitMK_gal, file = "data/results/fitMK_gal.RData")
 
 fitMK_pic <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Piciformes")
-#save(fitMK_pic, file = "data/aves/results/fitMK_pic.RData")
+#save(fitMK_pic, file = "data/results/fitMK_pic.RData")
 
 fitMK_apo <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Apodiformes")
-#save(fitMK_apo, file = "data/aves/results/fitMK_apo.RData")
+#save(fitMK_apo, file = "data/results/fitMK_apo.RData")
 
 fitMK_cha <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Charadriiformes")
-#save(fitMK_cha, file = "data/aves/results/fitMK_cha.RData")
+#save(fitMK_cha, file = "data/results/fitMK_cha.RData")
 
 fitMK_pas <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Passeriformes")
-#save(fitMK_pas, file = "data/aves/results/fitMK_pas.RData")
+#save(fitMK_pas, file = "data/results/fitMK_pas.RData")
 
-#load(file = "data/aves/results/fitMK_col.RData")
-#load(file = "data/aves/results/fitMK_psi.RData")
-#load(file = "data/aves/results/fitMK_ans.RData")
-#load(file = "data/aves/results/fitMK_acc.RData")
-#load(file = "data/aves/results/fitMK_gal.RData")
-#load(file = "data/aves/results/fitMK_pic.RData")
-#load(file = "data/aves/results/fitMK_apo.RData")
-#load(file = "data/aves/results/fitMK_cha.RData")
-#load(file = "data/aves/results/fitMK_pas.RData")
+#load(file = "data/results/fitMK_col.RData")
+#load(file = "data/results/fitMK_psi.RData")
+#load(file = "data/results/fitMK_ans.RData")
+#load(file = "data/results/fitMK_acc.RData")
+#load(file = "data/results/fitMK_gal.RData")
+#load(file = "data/results/fitMK_pic.RData")
+#load(file = "data/results/fitMK_apo.RData")
+#load(file = "data/results/fitMK_cha.RData")
+#load(file = "data/results/fitMK_pas.RData")
 
 aicw_res <- matrix(nrow = 9, ncol = 2)
 colnames(aicw_res) <- c("SYM", "ARD")
@@ -317,7 +317,7 @@ for(i in 1:length(tr)) {
 }
 
 essim_ave <- lapply(tr[1:100], essim, trait = sdi, nsim = 100)
-save(essim_ave, file = "data/aves/results/essim_ave.RData")
+save(essim_ave, file = "data/results/essim_ave.RData")
 
 male_al <- rgb(153/255, 102/255, 255/255, 0.3)
 monom_al <- rgb(190/255, 190/255, 190/255, 0.3)

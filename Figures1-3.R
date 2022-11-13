@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("Documents/Lab/dimorph_evol")
+setwd("Documents/lab/dimorph_evol")
 
 library(phytools)
 library(geiger)
@@ -14,8 +14,8 @@ library(fasterize)
 library(maptools)
 library(ggplot2)
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
+tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
 
 male <- "#9966FF"
 monom <- "gray"
@@ -272,11 +272,11 @@ dev.off()
 
 ## This part of the code was provided by Thomas Weeks
 
-birds <- st_read(dsn = "data/aves/spatial/BOTW/BOTW.gdb", layer = "All_Species")
+birds <- st_read(dsn = "data/spatial/BOTW/BOTW.gdb", layer = "All_Species")
 
 birds$sci_name <- stri_replace_all_fixed(birds$sci_name, " ", "_")
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 
 SDI <- function (male = male, female = female) {
   if (male <= female) {

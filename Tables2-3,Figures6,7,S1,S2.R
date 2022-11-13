@@ -10,8 +10,8 @@ library(viridis)
 
 ########### mvBM + RRphylo ###########
 
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
+tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 
 subdat <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
                complete.cases(dat$Body_mass_g_F_mean), ]
@@ -137,57 +137,57 @@ multiModelComp <- function(phy, data, taxon = NULL, ntree = 1) {
 ## Columbiformes = 105 spp
 fit_col <- multiModelComp(phy = tr, data = subdat, taxon = "Columbiformes",
                           ntree = 100)
-#save(fit_col, file = "data/aves/results/fitBM_col.RData")
+#save(fit_col, file = "data/results/fitBM_col.RData")
 
 ## Psittaciformes = 131 spp
 fit_psi <- multiModelComp(phy = tr, data = subdat, taxon = "Psittaciformes",
                           ntree = 100)
-#save(fit_psi, file = "data/aves/results/fitBM_psi.RData")
+#save(fit_psi, file = "data/results/fitBM_psi.RData")
 
 ## Anseriformes = 150 spp
 fit_ans <- multiModelComp(phy = tr, data = subdat, taxon = "Anseriformes",
                           ntree = 100)
-#save(fit_ans, file = "data/aves/results/fitBM_ans.RData")
+#save(fit_ans, file = "data/results/fitBM_ans.RData")
 
 ## Accipitriformes = 169 spp
 fit_acc <- multiModelComp(phy = tr, data = subdat, taxon = "Accipitriformes",
                           ntree = 100)
-#save(fit_acc, file = "data/aves/results/fitBM_acc.RData")
+#save(fit_acc, file = "data/results/fitBM_acc.RData")
 
 ## Galliformes = 179 spp
 fit_gal <- multiModelComp(phy = tr, data = subdat, taxon = "Galliformes",
                           ntree = 100)
-#save(fit_gal, file = "data/aves/results/fitBM_gal.RData")
+#save(fit_gal, file = "data/results/fitBM_gal.RData")
 
 ## Piciformes = 217 spp
 fit_pic <- multiModelComp(phy = tr, data = subdat, taxon = "Piciformes",
                           ntree = 100)
-#save(fit_pic, file = "data/aves/results/fitBM_pic.RData")
+#save(fit_pic, file = "data/results/fitBM_pic.RData")
 
 ## Apodiformes = 247 spp
 fit_apo <- multiModelComp(phy = tr, data = subdat, taxon = "Apodiformes",
                           ntree = 100)
-#save(fit_apo, file = "data/aves/results/fitBM_apo.RData")
+#save(fit_apo, file = "data/results/fitBM_apo.RData")
 
 ## charadriiformes = 252 spp
 fit_cha <- multiModelComp(phy = tr, data = subdat, taxon = "charadriiformes",
                           ntree = 100)
-#save(fit_cha, file = "data/aves/results/fitBM_cha.RData")
+#save(fit_cha, file = "data/results/fitBM_cha.RData")
 
 ## Passeriformes = 2290 spp
 fit_pas <- multiModelComp(phy = tr, data = subdat, taxon = "Passeriformes",
                           ntree = 100)
-#save(fit_pas, file = "data/aves/results/fitBM_pas.RData")
+#save(fit_pas, file = "data/results/fitBM_pas.RData")
 
-#load(file = "data/aves/results/fitBM_col.RData")
-#load(file = "data/aves/results/fitBM_psi.RData")
-#load(file = "data/aves/results/fitBM_ans.RData")
-#load(file = "data/aves/results/fitBM_acc.RData")
-#load(file = "data/aves/results/fitBM_gal.RData")
-#load(file = "data/aves/results/fitBM_pic.RData")
-#load(file = "data/aves/results/fitBM_apo.RData")
-#load(file = "data/aves/results/fitBM_cha.RData")
-#load(file = "data/aves/results/fitBM_pas.RData")
+#load(file = "data/results/fitBM_col.RData")
+#load(file = "data/results/fitBM_psi.RData")
+#load(file = "data/results/fitBM_ans.RData")
+#load(file = "data/results/fitBM_acc.RData")
+#load(file = "data/results/fitBM_gal.RData")
+#load(file = "data/results/fitBM_pic.RData")
+#load(file = "data/results/fitBM_apo.RData")
+#load(file = "data/results/fitBM_cha.RData")
+#load(file = "data/results/fitBM_pas.RData")
 
 ## Table 2
 
@@ -467,41 +467,41 @@ plot.shift <- function(RR_shift, ncol = 1) {
 
 # Análises feitas no cluster da UFG
 RR1_col <- lapply(tr[1:100], search.shift.birds1, "Columbiformes")
-#save(RR1_col, file = "data/aves/results/RR1_col.RData")
+#save(RR1_col, file = "data/results/RR1_col.RData")
 
 RR1_psi <- lapply(tr[1:100], search.shift.birds1, "Psittaciformes")
-#save(RR1_psi, file = "data/aves/results/RR1_psi.RData")
+#save(RR1_psi, file = "data/results/RR1_psi.RData")
 
 RR1_ans <- lapply(tr[1:100], search.shift.birds1, "Anseriformes")
-#save(RR1_ans, file = "data/aves/results/RR1_ans.RData")
+#save(RR1_ans, file = "data/results/RR1_ans.RData")
 
 RR1_acc <- lapply(tr[1:100], search.shift.birds1, "Accipitriformes")
-#save(RR1_acc, file = "data/aves/results/RR1_acc.RData")
+#save(RR1_acc, file = "data/results/RR1_acc.RData")
 
 RR1_gal <- lapply(tr[1:100], search.shift.birds1, "Galliformes")
-#save(RR1_gal, file = "data/aves/results/RR1_gal.RData")
+#save(RR1_gal, file = "data/results/RR1_gal.RData")
 
 RR1_pic <- lapply(tr[1:100], search.shift.birds1, "Piciformes")
-#save(RR1_pic, file = "data/aves/results/RR1_pic.RData")
+#save(RR1_pic, file = "data/results/RR1_pic.RData")
 
 RR1_apo <- lapply(tr[1:100], search.shift.birds1, "Apodiformes")
-#save(RR1_apo, file = "data/aves/results/RR1_apo.RData")
+#save(RR1_apo, file = "data/results/RR1_apo.RData")
 
 RR1_cha <- lapply(tr[1:100], search.shift.birds1, "Charadriiformes")
-#save(RR1_cha, file = "data/aves/results/RR1_cha.RData")
+#save(RR1_cha, file = "data/results/RR1_cha.RData")
 
 RR1_pas <- lapply(tr[1:100], search.shift.birds1, "Passeriformes")
-#save(RR1_pas, file = "data/aves/results/RR1_pas.RData")
+#save(RR1_pas, file = "data/results/RR1_pas.RData")
 
-#load(file = "data/aves/results/RR1_col.RData")
-#load(file = "data/aves/results/RR1_psi.RData")
-#load(file = "data/aves/results/RR1_ans.RData")
-#load(file = "data/aves/results/RR1_acc.RData")
-#load(file = "data/aves/results/RR1_gal.RData")
-#load(file = "data/aves/results/RR1_pic.RData")
-#load(file = "data/aves/results/RR1_apo.RData")
-#load(file = "data/aves/results/RR1_cha.RData")
-#load(file = "data/aves/results/RR1_pas.RData")
+#load(file = "data/results/RR1_col.RData")
+#load(file = "data/results/RR1_psi.RData")
+#load(file = "data/results/RR1_ans.RData")
+#load(file = "data/results/RR1_acc.RData")
+#load(file = "data/results/RR1_gal.RData")
+#load(file = "data/results/RR1_pic.RData")
+#load(file = "data/results/RR1_apo.RData")
+#load(file = "data/results/RR1_cha.RData")
+#load(file = "data/results/RR1_pas.RData")
 
 sig_col <- lapply(RR1_col, function(x) x$shift$all.clades[x$shift$all.clades$p.value <= 
                                                                        0.025 | 
@@ -769,41 +769,41 @@ search.shift.birds2 <- function(phy, taxon = NULL) {
 }
 
 RR2_col <- lapply(tr[1:100], search.shift.birds2, "Columbiformes")
-#save(RR2_col, file = "data/aves/results/RR2_col.RData")
+#save(RR2_col, file = "data/results/RR2_col.RData")
 
 RR2_psi <- lapply(tr[1:100], search.shift.birds2, "Psittaciformes")
-#save(RR2_psi, file = "data/aves/results/RR2_psi.RData")
+#save(RR2_psi, file = "data/results/RR2_psi.RData")
 
 RR2_ans <- lapply(tr[1:100], search.shift.birds2, "Anseriformes")
-#save(RR2_ans, file = "data/aves/results/RR2_ans.RData")
+#save(RR2_ans, file = "data/results/RR2_ans.RData")
 
 RR2_acc <- lapply(tr[1:100], search.shift.birds2, "Accipitriformes")
-#save(RR2_acc, file = "data/aves/results/RR2_acc.RData")
+#save(RR2_acc, file = "data/results/RR2_acc.RData")
 
 RR2_gal <- lapply(tr[1:100], search.shift.birds2, "Galliformes")
-#save(RR2_gal, file = "data/aves/results/RR2_gal.RData")
+#save(RR2_gal, file = "data/results/RR2_gal.RData")
 
 RR2_pic <- lapply(tr[1:100], search.shift.birds2, "Piciformes")
-#save(RR2_pic, file = "data/aves/results/RR2_pic.RData")
+#save(RR2_pic, file = "data/results/RR2_pic.RData")
 
 RR2_apo <- lapply(tr[1:100], search.shift.birds2, "Apodiformes")
-#save(RR2_apo, file = "data/aves/results/RR2_apo.RData")
+#save(RR2_apo, file = "data/results/RR2_apo.RData")
 
 RR2_cha <- lapply(tr[1:100], search.shift.birds2, "Charadriiformes")
-#save(RR2_cha, file = "data/aves/results/RR2_cha.RData")
+#save(RR2_cha, file = "data/results/RR2_cha.RData")
 
 RR2_pas <- lapply(tr[1:100], search.shift.birds2, "Passeriformes")
-#save(RR2_pas, file = "data/aves/results/RR2_pas.RData")
+#save(RR2_pas, file = "data/results/RR2_pas.RData")
 
-#load(file = "data/aves/results/RR2_col.RData")
-#load(file = "data/aves/results/RR2_psi.RData")
-#load(file = "data/aves/results/RR2_ans.RData")
-#load(file = "data/aves/results/RR2_acc.RData")
-#load(file = "data/aves/results/RR2_gal.RData")
-#load(file = "data/aves/results/RR2_pic.RData")
-#load(file = "data/aves/results/RR2_apo.RData")
-#load(file = "data/aves/results/RR2_cha.RData")
-#load(file = "data/aves/results/RR2_pas.RData")
+#load(file = "data/results/RR2_col.RData")
+#load(file = "data/results/RR2_psi.RData")
+#load(file = "data/results/RR2_ans.RData")
+#load(file = "data/results/RR2_acc.RData")
+#load(file = "data/results/RR2_gal.RData")
+#load(file = "data/results/RR2_pic.RData")
+#load(file = "data/results/RR2_apo.RData")
+#load(file = "data/results/RR2_cha.RData")
+#load(file = "data/results/RR2_pas.RData")
 
 RR2_acc_M_p <- RR2_acc_F_p <- RR2_ans_M_p <- RR2_ans_F_p <- RR2_col_M_p <-
   RR2_col_F_p <- RR2_gal_M_p <- RR2_gal_F_p <- numeric()

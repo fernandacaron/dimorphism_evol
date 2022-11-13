@@ -9,8 +9,8 @@ library(AICcmodavg)
 
 ########## MK + DR ##########
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
-tr <- read.nexus("data/aves/aves_Ericson_VertLife_27JUL20.nex")
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
+tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
 tr <- tr[1:100]
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -66,10 +66,7 @@ fitMK <- function(phy, sdi, data, taxon) {
   N_M <- length(subsdi[subsdi == -1])
   N_F <- length(subsdi[subsdi == 1])
   
-  aicc <- aiccw <- list()
-  modL <- matrix(nrow = length(phy), ncol = 2)
-  modEst <- matrix(nrow = length(phy), ncol = 3)
-  colnames(modEst) <- c("SYM", "ARD1", "ARD2")
+  aicc <- aiccw <- est1 <- est2 <- list()
   for (i in 1:length(phy)) {
     pruned_tr <- treedata(phy[[i]], subsdi, warnings = F)$phy
     subsdi <- subsdi[names(subsdi) %in% pruned_tr$tip.label]
@@ -77,12 +74,13 @@ fitMK <- function(phy, sdi, data, taxon) {
     
     fitSYM <- fitMk(pruned_tr, subsdi, model = "SYM", pi = "fitzjohn")
     fitARD <- fitMk(pruned_tr, subsdi, model = "ARD", pi = "fitzjohn")
-    modEst[i, 1] <- fitSYM$rates
-    modEst[i, 2:3] <- fitARD$rates
-    modL[i, ] <- c(fitSYM$logLik, fitARD$logLik)
+    modEst <- c(fitSYM$rates, fitARD$rates)
+    names(modEst) <- c("SYM", "ARD1", "ARD2")
+    modL <- c(fitSYM$logLik, fitARD$logLik)
+    names(modL) <- c("SYM", "ARD")
     modK <- c(1, 2)
-    outTab <- aictabCustom(logL = modL[i, ], K = modK, 
-                           modnames = c("SYM", "ARD"), nobs = length(subsdi))
+    outTab <- aictabCustom(logL = modL, K = modK, modnames = c("SYM", "ARD"),
+                           nobs = length(subsdi))
 
     AICc <- outTab$AICc
     names(AICc) <- outTab$Modnames
@@ -92,6 +90,19 @@ fitMK <- function(phy, sdi, data, taxon) {
     names(AICcWt) <- outTab$Modnames
     aiccw[[i]] <- c(AICcWt[names(AICcWt) == "SYM"], AICcWt[names(AICcWt) == "ARD"])
     names(aiccw[[i]]) <- c("AICcWtSYM", "AICcWtARD")
+
+    modsEst1 <- c(modEst[1], modEst[2])
+    est1[[i]] <- modavgCustom(logL = modL, K = modK, 
+                              modnames = c("SYM", "ARD"),
+                              nobs = length(subsdi),
+                              estimate = modsEst1,
+                              se = c(NA, NA))
+    modsEst2 <- c(modEst[1], modEst[3])
+    est2[[i]] <- modavgCustom(logL = modL, K = modK, 
+                              modnames = c("SYM", "ARD"), 
+                              nobs = length(subsdi), 
+                              estimate = modsEst2,
+                              se = c(NA, NA))
   }
   
   aiccw_res <- matrix(nrow = 1, ncol = 4)
@@ -113,19 +124,27 @@ fitMK <- function(phy, sdi, data, taxon) {
              paste0(me_ard, " (", round(range_ard[1], 3), "-", 
                     round(range_ard[2], 3), ")")))
   }
-    
+  
   aiccw_res[1, 1:2] <- stats1(aicc)
   aiccw_res[1, 3:4] <- stats1(aiccw)
     
-  modsEst1 <- c(mean(modEst[, 1]), mean(modEst[, 2]))
-  modsSE1 <- c(std.error(modEst[, 1], na.rm = F), std.error(modEst[, 2], na.rm = F))
-  modsL <- c(mean(modL[, 1]), mean(modL[, 2]))
-  est1 <- modavgCustom(logL = modsL, K = modK, modnames = c("SYM", "ARD"), 
-                       nobs = length(subsdi), estimate = modsEst1, se = modsSE1)
-  modsEst2 <- c(mean(modEst[, 1]), mean(modEst[, 3]))
-  modsSE2 <- c(std.error(modEst[, 1], na.rm = F), std.error(modEst[, 3], na.rm = F))
-  est2 <- modavgCustom(logL = modsL, K = modK, modnames = c("SYM", "ARD"), 
-                       nobs = length(subsdi), estimate = modsEst2, se = modsSE2)
+  stats2 <- function(x) {
+    stat_est <- numeric()
+    for (i in 1:length(phy)) {
+      stat_est[i] <- x[[i]]$Mod.avg.est
+    }
+    me_est <- round(mean(stat_est), 3)
+    range_est <- range(stat_est)
+    return(c(paste0(me_est, " (", round(range_est[1], 3), "-", 
+                    round(range_est[2], 3), ")")))
+  }
+
+  avgest_res <- matrix(nrow = 1, ncol = 2)
+  colnames(avgest_res) <- c("rate_1to-1", "rate_-1to1")
+  rownames(avgest_res) <- taxon
+
+  avgest_res[1, 1] <- stats2(est1)
+  avgest_res[1, 2] <- stats2(est2)
 
   res <- list()
   res$fitSYM1 <- fitSYM
@@ -133,9 +152,8 @@ fitMK <- function(phy, sdi, data, taxon) {
   res$NM <- N_M
   res$NF <- N_F
   res$aiccw <- aiccw_res
-  res$rates <- c(est1$Mod.avg.est, est2$Mod.avg.est)
-  names(res$rates) <- c("rate_1to-1", "rate_-1to1")
-  
+  res$rates <- avgest_res
+
   return(res)
 }
 
@@ -168,15 +186,15 @@ fitMK_cha <- fitMK(tr, sdi = sdi, data = dat, taxon = "Charadriiformes")
 fitMK_pas <- fitMK(tr, sdi = sdi, data = dat, taxon = "Passeriformes")
 #save(fitMK_pas, file = "data/aves/results/fitMK_pas_AICcmmodavg.RData")
 
-#load(file = "data/aves/results/fitMK_col.RData")
-#load(file = "data/aves/results/fitMK_psi.RData")
-#load(file = "data/aves/results/fitMK_ans.RData")
-#load(file = "data/aves/results/fitMK_acc.RData")
-#load(file = "data/aves/results/fitMK_gal.RData")
-#load(file = "data/aves/results/fitMK_pic.RData")
-#load(file = "data/aves/results/fitMK_apo.RData")
-#load(file = "data/aves/results/fitMK_cha.RData")
-#load(file = "data/aves/results/fitMK_pas.RData")
+#load(file = "data/aves/results/fitMK_col_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_psi_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_ans_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_acc_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_gal_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_pic_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_apo_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_cha_AICcmmodavg.RData")
+#load(file = "data/aves/results/fitMK_pas_AICcmmodavg.RData")
 
 aiccw <- rbind(fitMK_acc$aiccw,
                fitMK_ans$aiccw,

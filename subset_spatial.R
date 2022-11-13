@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("Documents/Lab/dimorph_evol")
+setwd("Documents/lab/dimorph_evol")
 
 library(stringi)
 library(sf)
@@ -9,7 +9,7 @@ library(dplyr)
 library(fasterize)
 library(rgeos)
 
-dat <- read.csv("data/aves/BodySizeAves_30may22_edit.csv", row.names = 1)
+dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
                  complete.cases(dat$Body_mass_g_F_mean), ]
@@ -53,7 +53,7 @@ for (i in 1:nrow(dat_red)) {
 names(sdi) <- dat_red$Scientific_name
 sdi <- sdi[complete.cases(sdi)]
 
-birds <- st_read(dsn = "data/aves/spatial/BOTW/BOTW.gdb", layer = "All_Species")
+birds <- st_read(dsn = "data/spatial/BOTW/BOTW.gdb", layer = "All_Species")
 birds$sci_name <- stri_replace_all_fixed(birds$sci_name, " ", "_")
 birds2 <- birds %>% filter(st_geometry_type(Shape) != "MULTISURFACE")
 
@@ -76,13 +76,13 @@ pic <- birds2 %>% filter(sci_name %in% dat_red$Scientific_name[dat_red$Order ==
 psi <- birds2 %>% filter(sci_name %in% dat_red$Scientific_name[dat_red$Order ==
                             "Psittaciformes"])
 
-save(acc, file = "data/aves/spatial/acc.RData")
-save(ans, file = "data/aves/spatial/ans.RData")
-save(apo, file = "data/aves/spatial/apo.RData")
-save(cha, file = "data/aves/spatial/cha.RData")
-save(col, file = "data/aves/spatial/col.RData")
-save(gal, file = "data/aves/spatial/gal.RData")
-save(pas, file = "data/aves/spatial/pas.RData")
-save(pic, file = "data/aves/spatial/pic.RData")
-save(psi, file = "data/aves/spatial/psi.RData")
+save(acc, file = "data/spatial/acc.RData")
+save(ans, file = "data/spatial/ans.RData")
+save(apo, file = "data/spatial/apo.RData")
+save(cha, file = "data/spatial/cha.RData")
+save(col, file = "data/spatial/col.RData")
+save(gal, file = "data/spatial/gal.RData")
+save(pas, file = "data/spatial/pas.RData")
+save(pic, file = "data/spatial/pic.RData")
+save(psi, file = "data/spatial/psi.RData")
 
