@@ -353,7 +353,7 @@ fit_birds[9, 2:5] <- c(summ(subdat_sdi$sdi[subdat_sdi$Order ==
                        summ(fit_psi$pval, FALSE)
 )
 
-write.csv(fit_birds, "tables/Table2_unformatted.csv")
+write.csv(fit_birds, "tables/Table3_unformatted.csv")
 
 #################
 
@@ -899,7 +899,7 @@ res_RR2[9, 7:12] <- c(summ(RR2_psi_F_p[, 1]), summ(RR2_psi_F_p[, 2]),
                       summ(RR2_psi_F_p[, 3]), summ(RR2_psi_F_p[, 4]), 
                       summ(RR2_psi_F_p[, 5]), summ(RR2_psi_F_p[, 6]))
 
-write.csv(res_RR2, "tables/Table3_unformatted.csv")
+write.csv(res_RR2, "tables/TableS1_unformatted.csv")
 
 acc_F_fem <- acc_F_mal <- acc_M_fem <- acc_M_mal <- list()
 ans_F_fem <- ans_F_mal <- ans_M_fem <- ans_M_mal <- list()
