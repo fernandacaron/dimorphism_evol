@@ -321,14 +321,16 @@ colnames(res_acc) <- colnames(res_ans) <- colnames(res_apo) <-
               "bio4", "p_bio4", "bio15", "p_bio15", "NPP", "p_NPP", 
               "R_squared")
 
+pgls_acc <- pgls_ans <- pgls_apo <- pgls_cha <- pgls_col <- pgls_gal <-
+  pgls_pas <- pgls_pic <- pgls_psi <- list()
 for (i in 1:1000) {
     print(i)
     pruned_acc <- treedata(tr[[i]], env_acc, warnings = F)$phy
     comp_acc <- comparative.data(pruned_acc, env_acc, Species)
-    pgls_acc <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_acc)
+    pgls_acc[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_acc)
     
-    summ_acc <- summary(pgls_acc)
+    summ_acc <- summary(pgls_acc[[i]])
     res_acc[i, 1] <- round(summ_acc$coefficients[1, 1], 3)
     res_acc[i, 2] <- round(summ_acc$coefficients[2, 1], 3)
     res_acc[i, 3] <- round(summ_acc$coefficients[2, 4], 3)
@@ -342,16 +344,17 @@ for (i in 1:1000) {
     res_acc[i, 11] <- round(summ_acc$coefficients[6, 4], 3)
     res_acc[i, 12] <- round(summ_acc$r.squared, 3)
 }
-write.csv(res_acc, "tables/Table4_unformatted_acc.csv")
+#write.csv(res_acc, "tables/Table4_unformatted_acc.csv")
+#save(pgls_acc, file = "data/results/pgls_acc.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_ans <- treedata(tr[[i]], env_ans, warnings = F)$phy
     comp_ans <- comparative.data(pruned_ans, env_ans, Species)
-    pgls_ans <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_ans)
+    pgls_ans[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_ans)
     
-    summ_ans <- summary(pgls_ans)
+    summ_ans <- summary(pgls_ans[[i]])
     res_ans[i, 1] <- round(summ_ans$coefficients[1, 1], 3)
     res_ans[i, 2] <- round(summ_ans$coefficients[2, 1], 3)
     res_ans[i, 3] <- round(summ_ans$coefficients[2, 4], 3)
@@ -365,16 +368,17 @@ for (i in 1:1000) {
     res_ans[i, 11] <- round(summ_ans$coefficients[6, 4], 3)
     res_ans[i, 12] <- round(summ_ans$r.squared, 3)
 }
-write.csv(res_ans, "tables/Table4_unformatted_ans.csv")
+#write.csv(res_ans, "tables/Table4_unformatted_ans.csv")
+#save(pgls_ans, file = "data/results/pgls_ans.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_apo <- treedata(tr[[i]], env_apo, warnings = F)$phy
     comp_apo <- comparative.data(pruned_apo, env_apo, Species)
-    pgls_apo <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_apo)
+    pgls_apo[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_apo)
     
-    summ_apo <- summary(pgls_apo)
+    summ_apo <- summary(pgls_apo[[i]])
     res_apo[i, 1] <- round(summ_apo$coefficients[1, 1], 3)
     res_apo[i, 2] <- round(summ_apo$coefficients[2, 1], 3)
     res_apo[i, 3] <- round(summ_apo$coefficients[2, 4], 3)
@@ -388,16 +392,17 @@ for (i in 1:1000) {
     res_apo[i, 11] <- round(summ_apo$coefficients[6, 4], 3)
     res_apo[i, 12] <- round(summ_apo$r.squared, 3)
 }
-write.csv(res_apo, "tables/Table4_unformatted_apo.csv")
+#write.csv(res_apo, "tables/Table4_unformatted_apo.csv")
+#save(pgls_apo, file = "data/results/pgls_apo.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_cha <- treedata(tr[[i]], env_cha, warnings = F)$phy
     comp_cha <- comparative.data(pruned_cha, env_cha, Species)
-    pgls_cha <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_cha)
+    pgls_cha[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_cha)
     
-    summ_cha <- summary(pgls_cha)
+    summ_cha <- summary(pgls_cha[[i]])
     res_cha[i, 1] <- round(summ_cha$coefficients[1, 1], 3)
     res_cha[i, 2] <- round(summ_cha$coefficients[2, 1], 3)
     res_cha[i, 3] <- round(summ_cha$coefficients[2, 4], 3)
@@ -411,16 +416,17 @@ for (i in 1:1000) {
     res_cha[i, 11] <- round(summ_cha$coefficients[6, 4], 3)
     res_cha[i, 12] <- round(summ_cha$r.squared, 3)
 }
-write.csv(res_cha, "tables/Table4_unformatted_cha.csv")
+#write.csv(res_cha, "tables/Table4_unformatted_cha.csv")
+#save(pgls_cha, file = "data/results/pgls_cha.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_col <- treedata(tr[[i]], env_col, warnings = F)$phy
     comp_col <- comparative.data(pruned_col, env_col, Species)
-    pgls_col <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_col)
+    pgls_col[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_col)
     
-    summ_col <- summary(pgls_col)
+    summ_col <- summary(pgls_col[[i]])
     res_col[i, 1] <- round(summ_col$coefficients[1, 1], 3)
     res_col[i, 2] <- round(summ_col$coefficients[2, 1], 3)
     res_col[i, 3] <- round(summ_col$coefficients[2, 4], 3)
@@ -434,16 +440,17 @@ for (i in 1:1000) {
     res_col[i, 11] <- round(summ_col$coefficients[6, 4], 3)
     res_col[i, 12] <- round(summ_col$r.squared, 3)
 }
-write.csv(res_col, "tables/Table4_unformatted_col.csv")
+#write.csv(res_col, "tables/Table4_unformatted_col.csv")
+#save(pgls_col, file = "data/results/pgls_col.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_gal <- treedata(tr[[i]], env_gal, warnings = F)$phy
     comp_gal <- comparative.data(pruned_gal, env_gal, Species)
-    pgls_gal <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_gal)
+    pgls_gal[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_gal)
     
-    summ_gal <- summary(pgls_gal)
+    summ_gal <- summary(pgls_gal[[i]])
     res_gal[i, 1] <- round(summ_gal$coefficients[1, 1], 3)
     res_gal[i, 2] <- round(summ_gal$coefficients[2, 1], 3)
     res_gal[i, 3] <- round(summ_gal$coefficients[2, 4], 3)
@@ -457,16 +464,17 @@ for (i in 1:1000) {
     res_gal[i, 11] <- round(summ_gal$coefficients[6, 4], 3)
     res_gal[i, 12] <- round(summ_gal$r.squared, 3)
 }
-write.csv(res_gal, "tables/Table4_unformatted_gal.csv")
+#write.csv(res_gal, "tables/Table4_unformatted_gal.csv")
+#save(pgls_gal, file = "data/results/pgls_gal.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_pas <- treedata(tr[[i]], env_pas, warnings = F)$phy
     comp_pas <- comparative.data(pruned_pas, env_pas, Species)
-    pgls_pas <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_pas)
+    pgls_pas[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_pas)
     
-    summ_pas <- summary(pgls_pas)
+    summ_pas <- summary(pgls_pas[[i]])
     res_pas[i, 1] <- round(summ_pas$coefficients[1, 1], 3)
     res_pas[i, 2] <- round(summ_pas$coefficients[2, 1], 3)
     res_pas[i, 3] <- round(summ_pas$coefficients[2, 4], 3)
@@ -480,16 +488,17 @@ for (i in 1:1000) {
     res_pas[i, 11] <- round(summ_pas$coefficients[6, 4], 3)
     res_pas[i, 12] <- round(summ_pas$r.squared, 3)
 }
-write.csv(res_pas, "tables/Table4_unformatted_pas.csv")
+#write.csv(res_pas, "tables/Table4_unformatted_pas.csv")
+save(pgls_pas, file = "data/results/pgls_pas.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_pic <- treedata(tr[[i]], env_pic, warnings = F)$phy
     comp_pic <- comparative.data(pruned_pic, env_pic, Species)
-    pgls_pic <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_pic)
+    pgls_pic[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_pic)
     
-    summ_pic <- summary(pgls_pic)
+    summ_pic <- summary(pgls_pic[[i]])
     res_pic[i, 1] <- round(summ_pic$coefficients[1, 1], 3)
     res_pic[i, 2] <- round(summ_pic$coefficients[2, 1], 3)
     res_pic[i, 3] <- round(summ_pic$coefficients[2, 4], 3)
@@ -503,16 +512,17 @@ for (i in 1:1000) {
     res_pic[i, 11] <- round(summ_pic$coefficients[6, 4], 3)
     res_pic[i, 12] <- round(summ_pic$r.squared, 3)
 }
-write.csv(res_pic, "tables/Table4_unformatted_pic.csv")
+#write.csv(res_pic, "tables/Table4_unformatted_pic.csv")
+#save(pgls_pic, file = "data/results/pgls_pic.RData")
 
 for (i in 1:1000) {
     print(i)
     pruned_psi <- treedata(tr[[i]], env_psi, warnings = F)$phy
     comp_psi <- comparative.data(pruned_psi, env_psi, Species)
-    pgls_psi <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
-                     data = comp_psi)
+    pgls_psi[[i]] <- pgls(SDI ~ Richness + abs(Latitude) + bio4 + bio15 + NPP,
+                          data = comp_psi)
     
-    summ_psi <- summary(pgls_psi)
+    summ_psi <- summary(pgls_psi[[i]])
     res_psi[i, 1] <- round(summ_psi$coefficients[1, 1], 3)
     res_psi[i, 2] <- round(summ_psi$coefficients[2, 1], 3)
     res_psi[i, 3] <- round(summ_psi$coefficients[2, 4], 3)
@@ -526,7 +536,8 @@ for (i in 1:1000) {
     res_psi[i, 11] <- round(summ_psi$coefficients[6, 4], 3)
     res_psi[i, 12] <- round(summ_psi$r.squared, 3)
 }
-write.csv(res_psi, "tables/Table4_unformatted_psi.csv")
+#write.csv(res_psi, "tables/Table4_unformatted_psi.csv")
+#save(pgls_psi, file = "data/results/pgls_psi.RData")
 
 stats <- function(x) {
     mean <- round(mean(x), 3)
@@ -791,4 +802,3 @@ plot(SDI ~ NPP, data = env_psi, pch = 16, col = col_npp, ylab = "",
 title("Psittaciformes", adj = 0)
 
 dev.off()
-
