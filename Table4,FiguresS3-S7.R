@@ -323,6 +323,7 @@ colnames(res_acc) <- colnames(res_ans) <- colnames(res_apo) <-
 
 pgls_acc <- pgls_ans <- pgls_apo <- pgls_cha <- pgls_col <- pgls_gal <-
   pgls_pas <- pgls_pic <- pgls_psi <- list()
+
 for (i in 1:1000) {
     print(i)
     pruned_acc <- treedata(tr[[i]], env_acc, warnings = F)$phy
@@ -538,6 +539,16 @@ for (i in 1:1000) {
 }
 #write.csv(res_psi, "tables/Table4_unformatted_psi.csv")
 #save(pgls_psi, file = "data/results/pgls_psi.RData")
+
+#load(file = "data/results/pgls_acc.RData")
+#load(file = "data/results/pgls_ans.RData")
+#load(file = "data/results/pgls_apo.RData")
+#load(file = "data/results/pgls_cha.RData")
+#load(file = "data/results/pgls_col.RData")
+#load(file = "data/results/pgls_gal.RData")
+#load(file = "data/results/pgls_pas.RData")
+#load(file = "data/results/pgls_pic.RData")
+#load(file = "data/results/pgls_psi.RData")
 
 stats <- function(x) {
     mean <- round(mean(x), 3)
