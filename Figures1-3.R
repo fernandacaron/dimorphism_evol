@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("Documents/lab/dimorph_evol")
+setwd("~/Documents/lab/dimorph_evol")
 
 library(phytools)
 library(geiger)
@@ -15,7 +15,7 @@ library(maptools)
 library(ggplot2)
 
 dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
-tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
+tr <- read.nexus("~/Documents/lab/data/trees/aves_Ericson_VertLife_27JUL20.nex")
 
 male <- "#9966FF"
 monom <- "gray"
@@ -272,7 +272,7 @@ dev.off()
 
 ## This part of the code was provided by Thomas Weeks
 
-birds <- st_read(dsn = "data/spatial/BOTW/BOTW.gdb", layer = "All_Species")
+birds <- st_read(dsn = "~/Documents/lab/data/spatial/BOTW/BOTW.gdb", layer = "All_Species")
 
 birds$sci_name <- stri_replace_all_fixed(birds$sci_name, " ", "_")
 
@@ -303,6 +303,7 @@ for (i in 1:nrow(dat_red)) {
 names(sdi) <- dat_red$Scientific_name
 
 r <- raster(ncols = 2160, nrows = 900, ymn = -60)
+raster_stack_all <- r
 raster_stack_fem <- r
 raster_stack_mal <- r
 
@@ -310,8 +311,36 @@ birds2 <- birds %>% filter(st_geometry_type(Shape) != "MULTISURFACE")
 
 sdi <- sdi[names(sdi) %in% birds2$sci_name]
 
+sdi_all <- abs(sdi)
 sdi_fem <- sdi[sdi > 0]
 sdi_mal <- sdi[sdi < 0]
+
+for (i in 1:length(sdi_all)) {
+  print(i) 
+  
+  s <- as.character(names(sdi_all)[i]) 
+  map_i <- subset(birds2, birds2$sci_name == s)
+  
+  for (j in 1:length(map_i$Shape)) { 
+    try(map_i$Shape[[j]] <- st_cast(map_i$Shape[[j]], 'MULTIPOLYGON'))
+  }
+  try(map_i$Shape <- st_cast(map_i$Shape, 'MULTIPOLYGON'))
+  
+  raster_i <- fasterize(st_as_sf(map_i$Shape), r)
+  
+  rastercells <- which(getValues(!is.na(raster_i))) 
+  raster_i[rastercells] <- sdi_all[i]
+  
+  if(i == 1) {
+    raster_stack_all <- raster_i
+  } else {
+    raster_stack_all <- addLayer(raster_stack_all, raster_i)
+  }
+  removeTmpFiles(h = 0)
+}
+
+av_full_all <- stackApply(raster_stack_all, indices = rep(1, length(sdi_all)), 
+                          fun = median, na.rm = T)
 
 for (i in 1:length(sdi_fem)) {
   print(i) 
@@ -366,6 +395,12 @@ av_full_mal <- stackApply(raster_stack_mal, indices = rep(1, length(sdi_mal)),
                           fun = median, na.rm = T) 
 
 data(wrld_simpl)
+
+rem_all1 <- extract(av_full_all, wrld_simpl, cellnumbers = T, weights = T, 
+                    small = T)
+rem_all2 <- do.call(rbind.data.frame, rem_all1)[, 1]
+values(av_full_all)[-rem_all2] <- NA
+
 rem_fem1 <- extract(av_full_fem, wrld_simpl, cellnumbers = T, weights = T, 
                     small = T)
 rem_fem2 <- do.call(rbind.data.frame, rem_fem1)[, 1]
@@ -375,6 +410,13 @@ rem_mal1 <- extract(av_full_mal, wrld_simpl, cellnumbers = T, weights = T,
                     small = T)
 rem_mal2 <- do.call(rbind.data.frame, rem_mal1)[, 1]
 values(av_full_mal)[-rem_mal2] <- NA
+
+brks_all <- quantile(values(av_full_all)[order(values(av_full_all))], 
+                     probs = seq(0, 1, 0.02), na.rm = T)
+av_full_all_p <- rasterToPoints(av_full_all, spatial = TRUE)
+av_full_all_df  <- data.frame(av_full_all_p)
+av_full_all_df <- av_full_all_df %>% mutate(index_2 = cut(index_1, 
+                                                          breaks = brks_all))
 
 brks_fem <- quantile(values(av_full_fem)[order(values(av_full_fem))], 
                  probs = seq(0, 1, 0.02), na.rm = T)
@@ -390,11 +432,22 @@ av_full_mal_df  <- data.frame(av_full_mal_p)
 av_full_mal_df <- av_full_mal_df %>% mutate(index_2 = cut(index_1, 
                                                           breaks = brks_mal))
 
+colors_all <- met.brewer(name = "Hiroshige", n = 50, direction = -1)[1:50]
 colors_fem <- met.brewer(name = "Hiroshige", n = 50, direction = -1)[1:50]
 colors_mal <- met.brewer(name = "Hiroshige", n = 50, direction = 1)[1:50]
 
 inches <- 4.5
 res <- 600
+
+ggplot_all <- ggplot() +
+  geom_raster(data = av_full_all_df, aes(x = x, y = y, fill = index_2), show.legend = FALSE) +
+  scale_fill_manual(values = colors_all) +
+  theme_void() 
+
+plot_all <- "Figure3_all.tiff"
+tiff(plot_all, width = inches*res, height = inches*res/2, units = "px")
+print(ggplot_all)  
+dev.off()  
 
 ggplot_fem <- ggplot() +
   geom_raster(data = av_full_fem_df, aes(x = x, y = y, fill = index_2), show.legend = FALSE) +
@@ -437,11 +490,11 @@ do.call("axis", axis.args)
 box()
 dev.off()
 
-as.numeric(quantile(values(av_full_fem)[order(values(av_full_fem))], 
-                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)])
+round(as.numeric(quantile(values(av_full_all)[order(values(av_full_all))], 
+                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)]), 3)
 
-as.numeric(quantile(values(av_full_mal)[order(values(av_full_mal))], 
-                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)])
+round(as.numeric(quantile(values(av_full_fem)[order(values(av_full_fem))], 
+                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)]), 3)
 
-
-
+round(as.numeric(quantile(values(av_full_mal)[order(values(av_full_mal))], 
+                    probs = seq(0, 1, 0.01), na.rm = T)[seq(1, 101, 25)]), 3)
