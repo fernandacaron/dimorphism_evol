@@ -10,7 +10,7 @@ library(AICcmodavg)
 ########## MK + DR ##########
 
 dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
-tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
+tr <- read.nexus("~/Documents/lab/data/trees/aves_Ericson_VertLife_27JUL20.nex")
 tr <- tr[1:100]
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -62,152 +62,152 @@ sdi <- sdi[complete.cases(sdi)]
 sdi <- as.factor(sdi)
 
 fitMK <- function(phy, sdi, data, taxon) {
-
   subsdi <- sdi[names(sdi) %in% dat$Scientific_name[dat$Order == taxon]]
+  N_M <- length(subsdi[subsdi == -1])
+  N_F <- length(subsdi[subsdi == 1])
+  
+  aicc <- aiccw <- est1 <- est2 <- list()
+  for (i in 1:length(phy)) {
+    pruned_tr <- treedata(phy[[i]], subsdi, warnings = F)$phy
+    subsdi <- subsdi[names(subsdi) %in% pruned_tr$tip.label]
+    subsdi <- subsdi[match(pruned_tr$tip.label, names(subsdi))]  
+    
+    fitSYM <- fitMk(pruned_tr, subsdi, model = "SYM", pi = "fitzjohn")
+    fitARD <- fitMk(pruned_tr, subsdi, model = "ARD", pi = "fitzjohn")
+    modEst <- c(fitSYM$rates, fitARD$rates)
+    names(modEst) <- c("SYM", "ARD1", "ARD2")
+    modL <- c(fitSYM$logLik, fitARD$logLik)
+    names(modL) <- c("SYM", "ARD")
+    modK <- c(1, 2)
+    outTab <- aictabCustom(logL = modL, K = modK, modnames = c("SYM", "ARD"),
+                           nobs = length(subsdi))
 
-  pruned_tr <- treedata(phy, subsdi, warnings = F)$phy
-	subsdi <- subsdi[names(subsdi) %in% pruned_tr$tip.label]
-	subsdi <- subsdi[match(pruned_tr$tip.label, names(subsdi))]  
-	
-	fitSYM <- fitMk(pruned_tr, subsdi, model = "SYM", pi = "fitzjohn")
-	fitARD <- fitMk(pruned_tr, subsdi, model = "ARD", pi = "fitzjohn")
-	aic.res <- AIC(fitSYM, fitARD)
+    AICc <- outTab$AICc
+    names(AICc) <- outTab$Modnames
+    aicc[[i]] <- c(AICc[names(AICc) == "SYM"], AICc[names(AICc) == "ARD"])
+    names(aicc[[i]]) <- c("AICcSYM", "AICcARD")
+    AICcWt <- outTab$AICcWt
+    names(AICcWt) <- outTab$Modnames
+    aiccw[[i]] <- c(AICcWt[names(AICcWt) == "SYM"], AICcWt[names(AICcWt) == "ARD"])
+    names(aiccw[[i]]) <- c("AICcWtSYM", "AICcWtARD")
 
-	res <- list()
-	res$ratesSYM <- fitSYM$rates
-	res$ratesARD <- fitARD$rates
-	res$aic <- aic.res$AIC
-	names(res$aic) <- c("aicSYM", "aicARD")
-	res$aicw <- aic.w(aic.res$AIC)
-	names(res$aicw) <- c("weigthSYM", "weightARD")
+    modsEst1 <- c(modEst[1], modEst[2])
+    est1[[i]] <- modavgCustom(logL = modL, K = modK, 
+                              modnames = c("SYM", "ARD"),
+                              nobs = length(subsdi),
+                              estimate = modsEst1,
+                              se = c(NA, NA))
+    modsEst2 <- c(modEst[1], modEst[3])
+    est2[[i]] <- modavgCustom(logL = modL, K = modK, 
+                              modnames = c("SYM", "ARD"), 
+                              nobs = length(subsdi), 
+                              estimate = modsEst2,
+                              se = c(NA, NA))
+  }
+  
+  aiccw_res <- matrix(nrow = 1, ncol = 4)
+  colnames(aiccw_res) <- c("AICc_SYM", "AICc_ARD", "AICcW_SYM", "AICcW_ARD")
+  rownames(aiccw_res) <- taxon
 
-	if (length(fitSYM$states) == 3) {
-		names(res$ratesSYM) <- c("rate_0/-1", "rate_-1/1", "rate_0/1")
-		names(res$ratesARD) <- c("rate_0to-1", "rate_1to-1", "rate_-1to0", 
-		                         "rate_1to0", "rate_-1to1", "rate_0to1")
-	} else {
-		names(res$ratesSYM) <-  "rate"
-		names(res$ratesARD) <- c("rate_1to-1", "rate_-1to1")
-	}
+  stats1 <- function(x) {
+    stat_sym <- stat_ard <- numeric()
+    for (i in 1:length(phy)) {
+      stat_sym[i] <- x[[i]][[1]]
+      stat_ard[i] <- x[[i]][[2]]
+    }
+    me_sym <- round(mean(stat_sym), 3)
+    me_ard <- round(mean(stat_ard), 3)
+    range_sym <- range(stat_sym)
+    range_ard <- range(stat_ard)
+    return(c(paste0(me_sym, " (", round(range_sym[1], 3), "-", 
+                    round(range_sym[2], 3), ")"),
+             paste0(me_ard, " (", round(range_ard[1], 3), "-", 
+                    round(range_ard[2], 3), ")")))
+  }
+  
+  aiccw_res[1, 1:2] <- stats1(aicc)
+  aiccw_res[1, 3:4] <- stats1(aiccw)
+    
+  stats2 <- function(x) {
+    stat_est <- numeric()
+    for (i in 1:length(phy)) {
+      stat_est[i] <- x[[i]]$Mod.avg.est
+    }
+    me_est <- round(mean(stat_est), 3)
+    range_est <- range(stat_est)
+    return(c(paste0(me_est, " (", round(range_est[1], 3), "-", 
+                    round(range_est[2], 3), ")")))
+  }
 
-	res$fitSYM <- fitSYM
-	res$fitARD <- fitARD
+  avgest_res <- matrix(nrow = 1, ncol = 2)
+  colnames(avgest_res) <- c("rate_1to-1", "rate_-1to1")
+  rownames(avgest_res) <- taxon
 
-	res
+  avgest_res[1, 1] <- stats2(est1)
+  avgest_res[1, 2] <- stats2(est2)
+
+  res <- list()
+  res$fitSYM1 <- fitSYM
+  res$fitARD1 <- fitARD
+  res$NM <- N_M
+  res$NF <- N_F
+  res$aiccw <- aiccw_res
+  res$rates <- avgest_res
+
+  return(res)
 }
 
 # Análises feitas no cluster da UFG
 
-fitMK_col <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Columbiformes")
-#save(fitMK_col, file = "data/results/fitMK_col.RData")
+fitMK_col <- fitMK(tr, sdi = sdi, data = dat, taxon = "Columbiformes")
+#save(fitMK_col, file = "data/results/fitMK_col_AICcmmodavg.RData")
 
-fitMK_psi <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Psittaciformes")
-#save(fitMK_psi, file = "data/results/fitMK_psi.RData")
+fitMK_psi <- fitMK(tr, sdi = sdi, data = dat, taxon = "Psittaciformes")
+#save(fitMK_psi, file = "data/results/fitMK_psi_AICcmmodavg.RData")
 
-fitMK_ans <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Anseriformes")
-#save(fitMK_ans, file = "data/results/fitMK_ans.RData")
+fitMK_ans <- fitMK(tr, sdi = sdi, data = dat, taxon = "Anseriformes")
+#save(fitMK_ans, file = "data/results/fitMK_ans_AICcmmodavg.RData")
 
-fitMK_acc <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Accipitriformes")
-#save(fitMK_acc, file = "data/results/fitMK_acc.RData")
+fitMK_acc <- fitMK(tr, sdi = sdi, data = dat, taxon = "Accipitriformes")
+#save(fitMK_acc, file = "data/results/fitMK_acc_AICcmmodavg.RData")
 
-fitMK_gal <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Galliformes")
-#save(fitMK_gal, file = "data/results/fitMK_gal.RData")
+fitMK_gal <- fitMK(tr, sdi = sdi, data = dat, taxon = "Galliformes")
+#save(fitMK_gal, file = "data/results/fitMK_gal_AICcmmodavg.RData")
 
-fitMK_pic <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Piciformes")
-#save(fitMK_pic, file = "data/results/fitMK_pic.RData")
+fitMK_pic <- fitMK(tr, sdi = sdi, data = dat, taxon = "Piciformes")
+#save(fitMK_pic, file = "data/results/fitMK_pic_AICcmmodavg.RData")
 
-fitMK_apo <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Apodiformes")
-#save(fitMK_apo, file = "data/results/fitMK_apo.RData")
+fitMK_apo <- fitMK(tr, sdi = sdi, data = dat, taxon = "Apodiformes")
+#save(fitMK_apo, file = "data/results/fitMK_apo_AICcmmodavg.RData")
 
-fitMK_cha <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Charadriiformes")
-#save(fitMK_cha, file = "data/results/fitMK_cha.RData")
+fitMK_cha <- fitMK(tr, sdi = sdi, data = dat, taxon = "Charadriiformes")
+#save(fitMK_cha, file = "data/results/fitMK_cha_AICcmmodavg.RData")
 
-fitMK_pas <- lapply(tr, fitMK, sdi = sdi, data = dat, taxon = "Passeriformes")
-#save(fitMK_pas, file = "data/results/fitMK_pas.RData")
+fitMK_pas <- fitMK(tr, sdi = sdi, data = dat, taxon = "Passeriformes")
+#save(fitMK_pas, file = "data/results/fitMK_pas_AICcmmodavg.RData")
 
-#load(file = "data/results/fitMK_col.RData")
-#load(file = "data/results/fitMK_psi.RData")
-#load(file = "data/results/fitMK_ans.RData")
-#load(file = "data/results/fitMK_acc.RData")
-#load(file = "data/results/fitMK_gal.RData")
-#load(file = "data/results/fitMK_pic.RData")
-#load(file = "data/results/fitMK_apo.RData")
-#load(file = "data/results/fitMK_cha.RData")
-#load(file = "data/results/fitMK_pas.RData")
+#load(file = "data/results/fitMK_col_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_psi_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_ans_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_acc_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_gal_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_pic_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_apo_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_cha_AICcmmodavg.RData")
+#load(file = "data/results/fitMK_pas_AICcmmodavg.RData")
 
-aicw_res <- matrix(nrow = 9, ncol = 2)
-colnames(aicw_res) <- c("SYM", "ARD")
-rownames(aicw_res) <- c("Accipitriformes", "Anseriformes", "Apodiformes",
-                        "Charadriiformes", "Columbiformes", "Galliformes",
-                        "Passeriformes", "Piciformes", "Psittaciformes")
-stats1 <- function(x) {
-	aicw_sym <- aicw_ard <- numeric()
-	for (i in 1:100) {
-		aicw_sym[i] <- x[[i]]$aicw[[1]]
-		aicw_ard[i] <- x[[i]]$aicw[[2]]
-	}
-	me_sym <- round(mean(aicw_sym), 3)
-	me_ard <- round(mean(aicw_ard), 3)
-	range_sym <- range(aicw_sym)
-	range_ard <- range(aicw_ard)
-	return(c(paste0(me_sym, " (", round(range_sym[1], 3), "-", 
-	                round(range_sym[2], 3), ")"),
-	       paste0(me_ard, " (", round(range_ard[1], 3), "-", 
-	              round(range_ard[2], 3), ")")))
-}
+aiccw <- rbind(fitMK_acc$aiccw,
+               fitMK_ans$aiccw,
+               fitMK_apo$aiccw,
+               fitMK_cha$aiccw,
+               fitMK_col$aiccw,
+               fitMK_gal$aiccw,
+               fitMK_pas$aiccw,
+               fitMK_pic$aiccw,
+               fitMK_psi$aiccw)
 
-aicw_res[1, ] <- stats1(fitMK_acc)
-aicw_res[2, ] <- stats1(fitMK_ans)
-aicw_res[3, ] <- stats1(fitMK_apo)
-aicw_res[4, ] <- stats1(fitMK_cha)
-aicw_res[5, ] <- stats1(fitMK_col)
-aicw_res[6, ] <- stats1(fitMK_gal)
-aicw_res[7, ] <- stats1(fitMK_pas)
-aicw_res[8, ] <- stats1(fitMK_pic)
-aicw_res[9, ] <- stats1(fitMK_psi)
+write.csv(aiccw, "tables/Table2_unformatted_AICcmmodavg.csv")
 
-write.csv(aicw_res, "tables/Table1_unformatted.csv")
-
-stats2 <- function(x, taxon) {
-
-	sym <- c("Anseriformes")
-
-	if (taxon %in% sym) {
-		stats <- list()
-		for (j in 1:length(x[[1]]$ratesSYM)) {	
-			stats[[j]] <- numeric()	
-			for (i in 1:100) {
-				stats[[j]][i] <- x[[i]]$ratesSYM[[j]]
-			}
-		}
-		names(stats) <- c(names(x[[1]]$ratesSYM))
-
-		return(stats)
-	} else {
-		stats <- list()
-		for (j in 1:length(x[[1]]$ratesARD)) {	
-			stats[[j]] <- numeric()	
-			for (i in 1:100) {
-				stats[[j]][i] <- x[[i]]$ratesARD[[j]]
-			}
-		}
-		names(stats) <- c(names(x[[1]]$ratesARD))
-	
-		return(stats)
-	}
-}
-
-rates_acc <- stats2(fitMK_acc, "Accipitriformes")
-rates_ans <- stats2(fitMK_ans, "Anseriformes")
-rates_apo <- stats2(fitMK_apo, "Apodiformes")
-rates_cha <- stats2(fitMK_cha, "Charadriiformes")
-rates_col <- stats2(fitMK_col, "Columbiformes")
-rates_gal <- stats2(fitMK_gal, "Galliformes")
-rates_pas <- stats2(fitMK_pas, "Passeriformes")
-rates_pic <- stats2(fitMK_pic, "Piciformes")
-rates_psi <- stats2(fitMK_psi, "Psittaciformes")
-
-# definir cores
 male <- "#9966FF"
 monom <- "gray"
 female <- "#E69F00"
@@ -216,84 +216,109 @@ pdf("figures/Figure4.pdf", height = 9, width = 9)
 
 layout(matrix(1:9, ncol = 3, byrow = T))
 
-par(mar = c(2, 2, 2, 2))
+par(mar = c(0.5, 0.5, 0.5, 0.5))
 cols2 <- setNames(c(male, female), c("Male-biased SSD", "Female-biased SSD"))
 
-plot_acc <- plot(fitMK_acc[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
-invisible(mapply(draw.circle, plot_acc$x, plot_acc$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_acc$x, plot_acc$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+fitMK_acc$fitARD1$rates <- c(as.numeric(strsplit(fitMK_acc$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_acc$rates[2], " ")[[1]][1]))
+plot_acc <- plot(fitMK_acc$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
+mapply(draw.circle, plot_acc$x, plot_acc$y, col = cols2, border = NA, 
+       MoreArgs = list(radius = 0.30))
+text(plot_acc$x, plot_acc$y, c(paste("M\nN = ", fitMK_acc$NM, sep = ""),
+                               paste("F\nN = ", fitMK_acc$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Accipitriformes", adj = 0, line = -1)
 
-plot_ans <- plot(fitMK_ans[[1]]$fitSYM, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_ans$fitARD1$rates <- c(as.numeric(strsplit(fitMK_ans$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_ans$rates[2], " ")[[1]][1]))
+plot_ans <- plot(fitMK_ans$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_ans$x, plot_ans$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_ans$x, plot_ans$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_ans$x, plot_ans$y, c(paste("M\nN = ", fitMK_ans$NM, sep = ""),
+                               paste("F\nN = ", fitMK_ans$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Anseriformes", adj = 0, line = -1)
 
-plot_apo <- plot(fitMK_apo[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_apo$fitARD1$rates <- c(as.numeric(strsplit(fitMK_apo$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_apo$rates[2], " ")[[1]][1]))
+plot_apo <- plot(fitMK_apo$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_apo$x, plot_apo$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_apo$x, plot_apo$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_apo$x, plot_apo$y, c(paste("M\nN = ", fitMK_apo$NM, sep = ""),
+                               paste("F\nN = ", fitMK_apo$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Apodiformes", adj = 0, line = -1)
 
-plot_cha <- plot(fitMK_cha[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_cha$fitARD1$rates <- c(as.numeric(strsplit(fitMK_cha$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_cha$rates[2], " ")[[1]][1]))
+plot_cha <- plot(fitMK_cha$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_cha$x, plot_cha$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_cha$x, plot_cha$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_cha$x, plot_cha$y, c(paste("M\nN = ", fitMK_cha$NM, sep = ""),
+                               paste("F\nN = ", fitMK_cha$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Charadriiformes", adj = 0, line = -1)
 
-plot_col <- plot(fitMK_col[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_col$fitARD1$rates <- c(as.numeric(strsplit(fitMK_col$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_col$rates[2], " ")[[1]][1]))
+plot_col <- plot(fitMK_col$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_col$x, plot_col$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_col$x, plot_col$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_col$x, plot_col$y, c(paste("M\nN = ", fitMK_col$NM, sep = ""),
+                               paste("F\nN = ", fitMK_col$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Columbiformes", adj = 0, line = -1)
 
-plot_gal <- plot(fitMK_gal[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_gal$fitARD1$rates <- c(as.numeric(strsplit(fitMK_gal$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_gal$rates[2], " ")[[1]][1]))
+plot_gal <- plot(fitMK_gal$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_gal$x, plot_gal$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_gal$x, plot_gal$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_gal$x, plot_gal$y, c(paste("M\nN = ", fitMK_gal$NM, sep = ""),
+                               paste("F\nN = ", fitMK_gal$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Galliformes", adj = 0, line = -1)
 
-plot_pas <- plot(fitMK_pas[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_pas$fitARD1$rates <- c(as.numeric(strsplit(fitMK_pas$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_pas$rates[2], " ")[[1]][1]))
+plot_pas <- plot(fitMK_pas$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_pas$x, plot_pas$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_pas$x, plot_pas$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_pas$x, plot_pas$y, c(paste("M\nN = ", fitMK_pas$NM, sep = ""),
+                               paste("F\nN = ", fitMK_pas$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Passeriformes", adj = 0, line = -1)
 
-plot_pic <- plot(fitMK_pic[[1]]$fitARD, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_pic$fitARD1$rates <- c(as.numeric(strsplit(fitMK_pic$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_pic$rates[2], " ")[[1]][1]))
+plot_pic <- plot(fitMK_pic$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_pic$x, plot_pic$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_pic$x, plot_pic$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_pic$x, plot_pic$y, c(paste("M\nN = ", fitMK_pic$NM, sep = ""),
+                               paste("F\nN = ", fitMK_pic$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Piciformes", adj = 0, line = -1)
 
-plot_psi <- plot(fitMK_psi[[1]]$fitSYM, show.zeros = FALSE, spacer = 0.2, 
-                 mar = rep(0.5,4), cex.rates = 1.2)
+fitMK_psi$fitARD1$rates <- c(as.numeric(strsplit(fitMK_psi$rates[1], " ")[[1]][1]),
+                             as.numeric(strsplit(fitMK_psi$rates[2], " ")[[1]][1]))
+plot_psi <- plot(fitMK_psi$fitARD1, show.zeros = FALSE, spacer = 0.4, 
+                 mar = rep(0.5, 4), cex.rates = 1.2)
 invisible(mapply(draw.circle, plot_psi$x, plot_psi$y, col = cols2, border = NA,
-                 MoreArgs = list(radius = 0.13)))
-text(plot_psi$x, plot_psi$y, c("M", "F"), cex = 1.3, col = "white", 
-     font = 2)
+                 MoreArgs = list(radius = 0.3)))
+text(plot_psi$x, plot_psi$y, c(paste("M\nN = ", fitMK_psi$NM, sep = ""),
+                               paste("F\nN = ", fitMK_psi$NF, sep = "")), 
+     cex = 1.3, col = "white", font = 2)
 title("Psittaciformes", adj = 0, line = -1)
 
 dev.off()
-
-##################
 
 ## Figure 5 - Regressão DR contra grau de SSD
 
@@ -326,8 +351,8 @@ female_al <- rgb(230/255, 159/255, 0/255, 0.3)
 cols <- rep(NA, length(sdi))
 names(cols) <- sdi
 for (i in 1:length(sdi)) {
-	cols[i] <- ifelse(sdi[i] > 0, female_al, ifelse(sdi[i] < 0, male_al,
-	                                                monom_al))
+  cols[i] <- ifelse(sdi[i] > 0, female_al, ifelse(sdi[i] < 0, male_al,
+                                                  monom_al))
 }
 
 pdf("figures/Figure5.pdf")
@@ -335,7 +360,7 @@ pdf("figures/Figure5.pdf")
 plot(sdi ~ subset_es[[1]], xlab = expression(lambda["DR"]), ylab = "SDI", main = "",
      pch = 16, col = cols)
 for (i in 2:100) {
-	points(sdi ~ subset_es[[i]], pch = 16, col = cols)
+  points(sdi ~ subset_es[[i]], pch = 16, col = cols)
 }
 
 legend("bottomright", pch = 16, bty = 'n', 
@@ -343,5 +368,3 @@ legend("bottomright", pch = 16, bty = 'n',
        legend  = c("Male-biased SSD", "Monomorphism", "Female-biased SSD"))
 
 dev.off()
-
-

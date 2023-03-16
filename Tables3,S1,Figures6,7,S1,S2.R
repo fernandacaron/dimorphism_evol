@@ -1,6 +1,6 @@
 rm(list = ls())
 
-setwd("Documents/lab/dimorph_evol")
+setwd("~/Documents/lab/dimorph_evol")
 
 library(mvMORPH)
 library(phytools)
@@ -10,7 +10,7 @@ library(viridis)
 
 ########### mvBM + RRphylo ###########
 
-tr <- read.nexus("data/aves_Ericson_VertLife_27JUL20.nex")
+tr <- read.nexus("~/Documents/lab/data/trees/aves_Ericson_VertLife_27JUL20.nex")
 dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 
 subdat <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -18,8 +18,8 @@ subdat <- dat[complete.cases(dat$Body_mass_g_M_mean) &
 rownames(subdat) <- dat$Scientific_name[complete.cases(dat$Body_mass_g_M_mean) &
 										complete.cases(dat$Body_mass_g_F_mean)]
 
-subdat$Body_mass_g_M_mean <- log(subdat$Body_mass_g_M_mean)
-subdat$Body_mass_g_F_mean <- log(subdat$Body_mass_g_F_mean)
+subdat$log_Body_mass_g_M_mean <- log(subdat$Body_mass_g_M_mean)
+subdat$log_Body_mass_g_F_mean <- log(subdat$Body_mass_g_F_mean)
 
 ############
 
@@ -28,13 +28,13 @@ subdat$Body_mass_g_F_mean <- log(subdat$Body_mass_g_F_mean)
 multiModelComp <- function(phy, data, taxon = NULL, ntree = 1) {
 
 	if (!is.null(taxon)) {
-		subdat <- subset(data, Order == taxon, c(Body_mass_g_M_mean,
-		                                         Body_mass_g_F_mean))
+		subdat <- subset(data, Order == taxon, c(log_Body_mass_g_M_mean,
+		                                         log_Body_mass_g_F_mean))
 
 		rownames(subdat) <- subset(data, Order == taxon, Scientific_name)[, 1]
 
 	} else {
-		subdat <- data[, c("Body_mass_g_M_mean", "Body_mass_g_F_mean")]
+		subdat <- data[, c("log_Body_mass_g_M_mean", "log_Body_mass_g_F_mean")]
 
 		rownames(subdat) <- data$Scientific_name
 
