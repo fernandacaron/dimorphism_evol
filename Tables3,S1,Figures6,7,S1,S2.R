@@ -8,7 +8,7 @@ library(geiger)
 library(RRphylo)
 library(viridis)
 
-########### mvBM + RRphylo ###########
+## mvBM + RRphylo
 
 tr <- read.nexus("~/Documents/lab/data/trees/aves_Ericson_VertLife_27JUL20.nex")
 dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
@@ -20,8 +20,6 @@ rownames(subdat) <- dat$Scientific_name[complete.cases(dat$Body_mass_g_M_mean) &
 
 subdat$log_Body_mass_g_M_mean <- log(subdat$Body_mass_g_M_mean)
 subdat$log_Body_mass_g_F_mean <- log(subdat$Body_mass_g_F_mean)
-
-############
 
 ## mvBM
 
@@ -130,7 +128,6 @@ multiModelComp <- function(phy, data, taxon = NULL, ntree = 1) {
 # optimization = "L-BFGS-B"    # 3.852359 hours
 # optimization = "Nelder-Mead" # 3.257686 hours
 # optimization = "subplex"     # 12.4687 hours
-# Resultados iguais nos três
 
 # Análises feitas no cluster da UFG
 
@@ -355,8 +352,6 @@ fit_birds[9, 2:5] <- c(summ(subdat_sdi$sdi[subdat_sdi$Order ==
 
 write.csv(fit_birds, "tables/Table3_unformatted.csv")
 
-#################
-
 ## RRPhylo
 
 dat_red <- dat[complete.cases(dat$Body_mass_g_M_mean) & 
@@ -384,7 +379,8 @@ names(mass_male) <- dat_red$Scientific_name
 mass_female <- log(dat_red$Body_mass_g_F_mean)
 names(mass_female) <- dat_red$Scientific_name
 
-## 1. Exploração geral do SSD, auto-detectando shifts 
+## 1. General exploration of SSD evolution (auto-detecting shifts)
+
 search.shift.birds1 <- function(phy, taxon) {
   
   if (!is.null(taxon)) {
@@ -710,14 +706,14 @@ title("Psittaciformes", adj = 0)
 
 dev.off()
 
-## 2. Usando SSD como state
+## 2. Using SSD as a state
+
 sdi_disc <- sdi
 sdi_disc[sdi_disc > 0] <- "Female-biased SSD"
 sdi_disc[sdi_disc == 0] <- "Monomorphism"
 sdi_disc[sdi_disc < 0] <- "Male-biased SSD"
 sdi_disc <- as.factor(sdi_disc)
 
-# Acho que tem que mudar o 0 do subsdi (ou não)
 search.shift.birds2 <- function(phy, taxon = NULL) {
   
   if (!is.null(taxon)) {

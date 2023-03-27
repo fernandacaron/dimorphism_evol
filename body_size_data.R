@@ -2,14 +2,13 @@ rm(list = ls())
 
 setwd("Documents/lab/dimorph_evol")
 
+# Code to compile datasets
+
 library(phytools)
 library(stringi)
 
-## Função para colocar automaticamente os dados dos traits respectivos nos 
-## dados (data) do grupo indicado. "data" - dataframe onde serão colocados os 
-## dados com coluna "Scientific_name" e coluna do trait como "traitCol", "ref" 
-## - de onde serão retirados os dados com coluna trait de nome "trait" a "data" 
-## e com coluna "Species"
+## This function will automatically place the data of the respective traits in 
+## the data of the indicated taxa
 
 getSppTraits <- function(data, ref, traitCol, trait) {
 
@@ -26,32 +25,33 @@ getSppTraits <- function(data, ref, traitCol, trait) {
 
 #Reptilia
 
-#dat_sq <- read.csv("data/squamata/taxonomySqu.csv")
+dat_sq <- read.csv("data/squamata/taxonomySqu.csv")
 
 # Myhrvold et al. 2015 (Amniote Database) - Body_mass_g_F_1, Body_mass_g_M_1,
 ## SVL_mm_F_1 e SVL_mm_M_1
-#ref_sq_1 <- read.csv("data/squamata/AmnioteDatabase2015_02set2021.csv") 
-#ref_sq_1["Species"] <- NA
-#for (i in 1:nrow(ref_sq_1)) {
-#  ref_sq_1$Species[i] <- paste0(ref_sq_1$genus[i], "_", ref_sq_1$species[i])
-#}
-#ref_sq_1$female_body_mass_g[ref_sq_1$female_body_mass_g == -999] <- NA
-#ref_sq_1$male_body_mass_g[ref_sq_1$male_body_mass_g == -999] <- NA
-#ref_sq_1$male_svl_cm[ref_sq_1$male_svl_cm == -999] <- NA
-#ref_sq_1$male_svl_cm <- (ref_sq_1$male_svl_cm)*10 #SVL em cm, transformar em mm
-#ref_sq_1$female_svl_cm[ref_sq_1$female_svl_cm == -999] <- NA
-#ref_sq_1$female_svl_cm <- (ref_sq_1$female_svl_cm)*10 #SVL em cm, transformar em mm
 
-#dat_sq["SVL_mm_F_1"] <- dat_sq["SVL_mm_M_1"] <- dat_sq["Body_mass_g_F_1"] <- 
-#  dat_sq["Body_mass_g_M_1"] <- NA
+ref_sq_1 <- read.csv("data/squamata/AmnioteDatabase2015_02set2021.csv") 
+ref_sq_1["Species"] <- NA
+for (i in 1:nrow(ref_sq_1)) {
+  ref_sq_1$Species[i] <- paste0(ref_sq_1$genus[i], "_", ref_sq_1$species[i])
+}
+ref_sq_1$female_body_mass_g[ref_sq_1$female_body_mass_g == -999] <- NA
+ref_sq_1$male_body_mass_g[ref_sq_1$male_body_mass_g == -999] <- NA
+ref_sq_1$male_svl_cm[ref_sq_1$male_svl_cm == -999] <- NA
+ref_sq_1$male_svl_cm <- (ref_sq_1$male_svl_cm)*10 #SVL em cm, transformar em mm
+ref_sq_1$female_svl_cm[ref_sq_1$female_svl_cm == -999] <- NA
+ref_sq_1$female_svl_cm <- (ref_sq_1$female_svl_cm)*10 #SVL em cm, transformar em mm
 
-#dat_sq <- getSppTraits(dat_sq, ref_sq_1, "Body_mass_g_F_1", 
-#                       "female_body_mass_g")
-#dat_sq <- getSppTraits(dat_sq, ref_sq_1, "Body_mass_g_M_1", "male_body_mass_g")
-#dat_sq <- getSppTraits(dat_sq, ref_sq_1, "SVL_mm_F_1", "female_svl_cm")
-#dat_sq <- getSppTraits(dat_sq, ref_sq_1, "SVL_mm_M_1", "male_svl_cm")
+dat_sq["SVL_mm_F_1"] <- dat_sq["SVL_mm_M_1"] <- dat_sq["Body_mass_g_F_1"] <- 
+  dat_sq["Body_mass_g_M_1"] <- NA
 
-#write.csv(dat_sq, "data/squamata/BodySizeSqu_18jan22.csv")
+dat_sq <- getSppTraits(dat_sq, ref_sq_1, "Body_mass_g_F_1", 
+                       "female_body_mass_g")
+dat_sq <- getSppTraits(dat_sq, ref_sq_1, "Body_mass_g_M_1", "male_body_mass_g")
+dat_sq <- getSppTraits(dat_sq, ref_sq_1, "SVL_mm_F_1", "female_svl_cm")
+dat_sq <- getSppTraits(dat_sq, ref_sq_1, "SVL_mm_M_1", "male_svl_cm")
+
+write.csv(dat_sq, "data/squamata/BodySizeSqu_18jan22.csv")
 
 ##################
 
@@ -117,49 +117,49 @@ write.csv(dat_av, "data/BodySizeAve_30may22.csv")
 
 ## Mammals
 
-#dat_ma <- read.csv("data/mammalia/taxonomyMam.csv")
+dat_ma <- read.csv("data/mammalia/taxonomyMam.csv")
 
 #Ocampo et al. 2021 - Body_mass_g_M_1 e Body_mass_g_F_1
-#ref_ma_1 <- read.csv("data/mammalia/Ocampo&al2020_DataS1_BodyMass.csv") 
+ref_ma_1 <- read.csv("data/mammalia/Ocampo&al2020_DataS1_BodyMass.csv") 
 
 #Sibly et al. 2012 - Body_mass_g_M_1 e Body_mass_g_F_1
-#ref_ma_2 <- read.csv("data/mammalia/Sibly&al2012AmNat_BodySizeHerb.csv")
-#ref_ma_2["Species"] <- NA
-#for (i in 1:nrow(ref_ma_2)) {
-#  ref_ma_2$Species[i] <- paste0(ref_ma_2$Genus[i], "_", ref_ma_2$species[i])
-#}
-#ref_ma_2$Male.mass..kg. <- ref_ma_2$Male.mass..kg. * 1000
-#ref_ma_2$Female.mass..kg. <- ref_ma_2$Female.mass..kg. * 1000
+ref_ma_2 <- read.csv("data/mammalia/Sibly&al2012AmNat_BodySizeHerb.csv")
+ref_ma_2["Species"] <- NA
+for (i in 1:nrow(ref_ma_2)) {
+  ref_ma_2$Species[i] <- paste0(ref_ma_2$Genus[i], "_", ref_ma_2$species[i])
+}
+ref_ma_2$Male.mass..kg. <- ref_ma_2$Male.mass..kg. * 1000
+ref_ma_2$Female.mass..kg. <- ref_ma_2$Female.mass..kg. * 1000
 
-#dat_ma["Body_mass_g_M_mean"] <- dat_ma["Body_mass_g_M_2"] <- 
-#  dat_ma["Body_mass_g_M_1"] <- dat_ma["Body_mass_g_F_mean"] <- 
-#  dat_ma["Body_mass_g_F_2"] <- dat_ma["Body_mass_g_F_1"] <- NA
+dat_ma["Body_mass_g_M_mean"] <- dat_ma["Body_mass_g_M_2"] <- 
+  dat_ma["Body_mass_g_M_1"] <- dat_ma["Body_mass_g_F_mean"] <- 
+  dat_ma["Body_mass_g_F_2"] <- dat_ma["Body_mass_g_F_1"] <- NA
 
-#dat_ma <- getSppTraits(dat_ma, ref_ma_1, "Body_mass_g_M_1", 
-#                       "Average.weight..gr...Male.")
-#dat_ma <- getSppTraits(dat_ma, ref_ma_1, "Body_mass_g_F_1", 
-#                       "Average.weight..gr...Female.")
-#dat_ma <- getSppTraits(dat_ma, ref_ma_2, "Body_mass_g_M_2", 
-#                       "Male.mass..kg.")
-#dat_ma <- getSppTraits(dat_ma, ref_ma_2, "Body_mass_g_F_2", 
-#                       "Female.mass..kg.")
+dat_ma <- getSppTraits(dat_ma, ref_ma_1, "Body_mass_g_M_1", 
+                       "Average.weight..gr...Male.")
+dat_ma <- getSppTraits(dat_ma, ref_ma_1, "Body_mass_g_F_1", 
+                       "Average.weight..gr...Female.")
+dat_ma <- getSppTraits(dat_ma, ref_ma_2, "Body_mass_g_M_2", 
+                       "Male.mass..kg.")
+dat_ma <- getSppTraits(dat_ma, ref_ma_2, "Body_mass_g_F_2", 
+                       "Female.mass..kg.")
 
-#for (i in 1:nrow(dat_ma)) {
-#  y <- c(dat_ma$Body_mass_g_M_1[i], dat_ma$Body_mass_g_M_2[i])
-#  y <- as.numeric(y)
-#  if (length(is.na(y)[is.na(y) == "TRUE"]) != 2) {
-#    dat_ma$Body_mass_g_M_mean[i] <- mean(y, na.rm = T)
-#  } else {
-#    dat_ma$Body_mass_g_M_mean[i] <- NA
-#  }
-#  
-#  z <- c(dat_ma$Body_mass_g_F_1[i], dat_ma$Body_mass_g_F_2[i])
-#  z <- as.numeric(z)
-#  if (length(is.na(z)[is.na(z) == "TRUE"]) != 2) {
-#    dat_ma$Body_mass_g_F_mean[i] <- mean(z, na.rm = T)
-#  } else {
-#    dat_ma$Body_mass_g_F_mean[i] <- NA
-#  }
-#}
+for (i in 1:nrow(dat_ma)) {
+  y <- c(dat_ma$Body_mass_g_M_1[i], dat_ma$Body_mass_g_M_2[i])
+  y <- as.numeric(y)
+  if (length(is.na(y)[is.na(y) == "TRUE"]) != 2) {
+    dat_ma$Body_mass_g_M_mean[i] <- mean(y, na.rm = T)
+  } else {
+    dat_ma$Body_mass_g_M_mean[i] <- NA
+  }
+  
+  z <- c(dat_ma$Body_mass_g_F_1[i], dat_ma$Body_mass_g_F_2[i])
+  z <- as.numeric(z)
+  if (length(is.na(z)[is.na(z) == "TRUE"]) != 2) {
+    dat_ma$Body_mass_g_F_mean[i] <- mean(z, na.rm = T)
+  } else {
+    dat_ma$Body_mass_g_F_mean[i] <- NA
+  }
+}
 
-#write.csv(dat_ma, "data/mammalia/BodySizeMam_26jan22.csv")
+write.csv(dat_ma, "data/mammalia/BodySizeMam_26jan22.csv")

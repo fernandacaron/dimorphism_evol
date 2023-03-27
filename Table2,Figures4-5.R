@@ -7,7 +7,7 @@ library(geiger)
 library(plotrix)
 library(AICcmodavg)
 
-########## MK + DR ##########
+## MK + DR 
 
 dat <- read.csv("data/BodySizeAves_30may22_edit.csv", row.names = 1)
 tr <- read.nexus("~/Documents/lab/data/trees/aves_Ericson_VertLife_27JUL20.nex")
@@ -320,7 +320,7 @@ title("Psittaciformes", adj = 0, line = -1)
 
 dev.off()
 
-## Figure 5 - Regressão DR contra grau de SSD
+## Figure 5
 
 source("https://raw.githubusercontent.com/mgharvey/ES-sim/master/R/essim.R")
 

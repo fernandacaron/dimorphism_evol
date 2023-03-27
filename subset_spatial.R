@@ -2,6 +2,8 @@ rm(list = ls())
 
 setwd("Documents/lab/dimorph_evol")
 
+## Code to subset spatial data according to each avian order 
+
 library(stringi)
 library(sf)
 library(raster)

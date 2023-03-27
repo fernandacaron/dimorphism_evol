@@ -1,5 +1,7 @@
 rm(list = ls())
 
+## Code to compile NPP data 
+
 library(raster)
 
 setwd("/Volumes/Apps")
